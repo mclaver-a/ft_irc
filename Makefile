@@ -15,6 +15,7 @@ VPATH		= $(SRC_DIR) \
 			$(SRC_DIR)chl \
 			$(SRC_DIR)msg \
 			$(SRC_DIR)cmd \
+			$(SRC_DIR)cmd/ops \
 
 SRC			= main.cpp
 			
