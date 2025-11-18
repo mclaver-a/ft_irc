@@ -13,11 +13,13 @@
 #include <string>
 #include <cstdio>
 #include <cstring>
+#include "Server/Server.hpp"
 
 //will open the general socket and bind it to arg port.
 //TODO: is password arg necessary?
 //TODO: is setting reuse necessary?
 //TODO: remove the return logic. when the struct is working we wont need to return anything
+// ESTO TB deberia estar en Server.cpp
 int open_general_socket(std::string port, std::string password)
 {
     int socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -52,7 +54,7 @@ void addPollfd(std::vector<pollfd>& fds, int fd, short events) {
     p.revents = 0;
     fds.push_back(p);
 }
-
+/* MOVER TODO ESTO A Server.cpp
 //TODO: toda esta mierda... ahora si que necesito el struct
 void on_client_connect(void)
 {
@@ -72,11 +74,12 @@ void on_client_connect(void)
         }
     }
 }
-
+*/
 //basicamente, esto tiene un loop infinito donde va vigilando, mediante la funcion poll, si en cada fd
 // del vector PollFds, ha sucedido el evento que le hemos asignado. le asignamos POLLIN: there is data to read.
 // por lo tanto, si hay POLLIN en el socket del servidor, hay un usuario nuevo. si hay POLLIN en stdin,
 // tenemos que leer un comando
+// ESTO TB DEBERIA ESTAR EN Server.cpp
 void event_loop(int socket)
 {
     bool running = true;
@@ -124,10 +127,13 @@ int main(int argc, char **argv)
     std::string password = argv[2];
 
     //TODO: init server struct. the following functions should be member functions
+    Server irc(port, password);
     //TODO: fix this garbage try catch structure
+    // Aqui iria el irc.start() , pero no me he atrevido a crear el start jeje aunque lo tienes medio
+    // hecho entre el open general socket y el loop. Solo que en el sitio que no toca :D
     try
     {
-        int socket = open_general_socket(port, password);
+        socket = open_general_socket(port, password);
         try
         {
             event_loop(socket);
