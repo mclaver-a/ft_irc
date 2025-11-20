@@ -17,8 +17,20 @@
 #include <vector>
 #include <poll.h>
 #include <iostream>
-#include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <exception>
+#include <fcntl.h>
+#include <cstdlib>
+#include <string>
+#include <stdexcept>
+#include <iostream>
+#include <unistd.h>
+#include <vector>
+#include <cstdio>
+#include <cstring>
+
 
 class Server
 {
@@ -47,4 +59,7 @@ class Server
 /*      void    create_socket(void);
         void    start(void);*/
         void    on_client_connect(void);
+        void    event_loop(int socket);
+        int     open_general_socket(std::string port, std::string password);
+
 };
