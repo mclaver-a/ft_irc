@@ -30,7 +30,15 @@
 #include <vector>
 #include <cstdio>
 #include <cstring>
+#include <cerrno>
+#include <netdb.h>
+# include "../Client/Client.hpp"
+# include "../FlexLexer.h"
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
+class Client;
 
 class Server
 {
@@ -45,6 +53,7 @@ class Server
         std::string                         _info;
 
         std::vector<pollfd>                 _pollfds;
+        std::map<int, Client *>             _clients;
         //TBD> Clients, channels & commands
     public:
         // Constructors
@@ -59,7 +68,8 @@ class Server
 /*      void    create_socket(void);
         void    start(void);*/
         void    on_client_connect(void);
-        void    event_loop(int socket);
-        int     open_general_socket(std::string port, std::string password);
+        void    event_loop(void);
+        void    open_general_socket(std::string port);
+        void    client_message(int i, std::string message);
 
 };

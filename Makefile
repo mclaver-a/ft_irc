@@ -9,16 +9,16 @@ OBJ_DIR		= obj/
 SRC_DIR		= src/
 
 VPATH		= $(SRC_DIR) \
-			$(SRC_DIR)util \
-			$(SRC_DIR)srv \
-			$(SRC_DIR)cli \
-			$(SRC_DIR)chl \
-			$(SRC_DIR)msg \
-			$(SRC_DIR)cmd \
-			$(SRC_DIR)cmd/ops \
+			$(SRC_DIR)Utils \
+			$(SRC_DIR)Server \
+			$(SRC_DIR)Client \
+			$(SRC_DIR)Channel \
+			$(SRC_DIR)Message \
+			$(SRC_DIR)Commands \
+			$(SRC_DIR)Commands/opps \
 
-SRC			= main.cpp
-			
+SRC			= main.cpp Server.cpp utilsrv.cpp Client.cpp
+
 OBJ			= $(addprefix $(OBJ_DIR), $(notdir $(SRC:.cpp=.o)))
 
 $(OBJ_DIR)%.o: %.cpp

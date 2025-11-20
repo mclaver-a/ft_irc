@@ -1,0 +1,211 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mclaver- <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/18 18:41:02 by mclaver-          #+#    #+#             */
+/*   Updated: 2025/11/18 18:41:28 by mclaver-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+# include "Server.hpp"
+# include "../Utils/utils.hpp"
+#include <exception>
+#include <sstream>
+#include <stdexcept>
+#include <unistd.h>
+# include "../Client/Client.hpp"
+
+Server::Server(std::string port, std::string password)
+    : _running(false),
+    _socket(-1),
+    _port(port),
+    _password(password),
+    _hostname("127.0.0.1"),
+    _oper_password("chungus"),//cambiar + adelante por lo que definamos en Client
+    _info("IRC server by dmarijan and mclaver-...fuggetaboutit")
+{
+    return ;
+}
+
+Server::Server(const Server &other) {
+    *this = other;
+    return ;
+}
+
+Server::~Server(void) {
+    // Close the server socket
+    if (_socket != -1) {
+        close(_socket);
+    }
+    // Close all client sockets
+    for (size_t i = 2; i < _pollfds.size(); i++) {
+        if (_pollfds[i].fd != -1)
+            close(_pollfds[i].fd);
+    }
+
+    // TODO Delete all clients from the map
+    for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
+            delete it->second;
+    }
+    // TODO Delete all channels from the vector
+
+    // TODO Delete commands
+
+    return ;
+}
+
+Server                  &Server::operator=(const Server &other) {
+    this->_running = other._running;
+    this->_socket = other._socket;
+    this->_port = other._port;
+    this->_password = other._password;
+    this->_hostname = other._hostname;
+    this->_oper_password = other._oper_password;
+    this->_info = other._info;
+    this->_pollfds = other._pollfds;
+    this->_clients = other._clients;
+    return *this;
+}
+
+//POLLHUP : poll hangup (close connection)
+void Server::on_client_connect(void)
+{
+    sockaddr_in  client_address;
+    socklen_t    client_address_size = sizeof(client_address);
+
+    int client_fd = accept(_socket, (struct sockaddr *)&client_address, &client_address_size);
+    if (client_fd == -1)
+        throw std::runtime_error("Error: can't accept client connection: " + std::string(strerror(errno)));
+
+    addPollfd(_pollfds, client_fd, POLLIN | POLLHUP);
+
+    //TODO init client object
+    char hostname[NI_MAXHOST];
+    int result = getnameinfo((struct sockaddr *)&client_address, client_address_size, hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV);
+    if (result != 0)
+        throw std::runtime_error(std::string(gai_strerror(result)));
+
+    Client  *client = new Client(_hostname, client_fd, ntohs(client_address.sin_port), _password, hostname);
+
+    _clients.insert(std::make_pair(client_fd, client));
+    std::cout << client->get_hostname() << ":" << client->get_port() << " has connected" << std::endl;
+}
+
+void Server::client_message(int i, std::string message)
+{
+    int client_fd = _pollfds[i].fd;
+
+    client_fd = 0; //TODO: actually use this
+    std::istringstream iss(message);
+    std::string line;
+
+    //parse from line to line, from the input string stream to the temp line variable
+    while (std::getline(iss, line))
+    {
+        //TODO: check if client is disconnected
+        // save the line in a buffer if it does not end in \r\n
+
+        if (line.length() == 0)
+            continue ;
+
+        //TODO create message object
+        //TODO when user class is defined, call the nickname here
+        std::cout << "*tempnickname" << i << ": " << line << std::endl;
+    }
+
+}
+
+
+
+//basicamente, esto tiene un loop infinito donde va vigilando, mediante la funcion poll, si en cada fd
+// del vector PollFds, ha sucedido el evento que le hemos asignado. le asignamos POLLIN: there is data to read.
+// por lo tanto, si hay POLLIN en el socket del servidor, hay un usuario nuevo. si hay POLLIN en stdin,
+// tenemos que leer un comando
+void Server::event_loop(void)
+{
+    _running = true;
+
+    addPollfd(_pollfds, _socket, POLLIN);
+    addPollfd(_pollfds, STDIN_FILENO, POLLIN);
+
+    while (_running)
+    {
+        int npolls = poll(_pollfds.data(), _pollfds.size(), 0);
+
+        if (npolls == -1)
+            throw std::runtime_error("Error: cannot poll for events: " + std::string(strerror(errno)));
+
+        // If no events happened, continue
+        if (npolls == 0)
+            continue;
+
+        //server socket
+        if (_pollfds[0].revents & POLLIN) {
+            try {
+                on_client_connect();
+            } catch (std::exception &e) {
+                throw std::runtime_error("Error: cannot accept client connection: " + std::string(strerror(errno)));
+            }
+        }
+
+        //standard input
+        if (_pollfds[1].revents & POLLIN)
+        {
+            char buffer[1024];
+
+            int bread = read(STDIN_FILENO, buffer, sizeof(buffer));
+
+            if (bread == -1)
+                throw std::runtime_error("Error: while reading from STDIN: " + std::string(strerror(errno)));
+
+            if (bread == 0 || (std::string(buffer, bread) == "exit\n"))
+                _running = false;
+        }
+
+        //TODO: on disconnect and on HUP event (?)
+        //this loops through the pollfds for all the possible clients
+        for (int i = 2; i < (int)_pollfds.size(); i++)
+        {
+            if ((_pollfds[i].revents & POLLIN) == POLLIN)
+            {
+                char buffer[1024];
+                int bread = recv(_pollfds[i].fd, buffer, sizeof(buffer), 0);
+
+                if (bread == -1)
+                    throw std::runtime_error("Error: when receiving data from client: " + std::string(buffer, bread));
+
+                client_message(i, std::string(buffer, bread));
+            }
+        }
+    }
+}
+
+//will open the general socket and bind it to arg port.
+//TODO: is setting reuse necessary?
+void Server::open_general_socket(std::string port)
+{
+    _socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (_socket == -1)
+        throw std::runtime_error("Error: creating server socket");
+
+    int enable = 1;
+    if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) == -1)
+        throw std::runtime_error("Error: changing server options");
+
+    if (fcntl(_socket, F_SETFL, O_NONBLOCK) == -1)
+        throw std::runtime_error("Error: changing server socket to nonblock");
+
+    struct sockaddr_in srv_addr = {};
+    srv_addr.sin_family = AF_INET;
+    srv_addr.sin_port = htons(std::atoi(port.c_str()));
+    srv_addr.sin_addr.s_addr = INADDR_ANY;
+
+    if (bind(_socket, (struct sockaddr *)&srv_addr, sizeof(srv_addr)) == -1)
+        throw std::runtime_error("Error: binding server socket to port");
+
+    if (listen(_socket, 85) == -1)
+        throw std::runtime_error("Error: reading from server socket");
+}
