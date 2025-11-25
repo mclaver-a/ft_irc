@@ -27,6 +27,11 @@ Server::Server(std::string port, std::string password)
     _oper_password("chungus"),//cambiar + adelante por lo que definamos en Client
     _info("IRC server by dmarijan and mclaver-...fuggetaboutit")
 {
+
+    _commands["USER"] = new User(this);
+    _commands["PASS"] = new Pass(this);
+    _commands["NICK"] = new Nick(this);
+
     return ;
 }
 
@@ -67,6 +72,7 @@ Server                  &Server::operator=(const Server &other) {
     this->_info = other._info;
     this->_pollfds = other._pollfds;
     this->_clients = other._clients;
+    this->_commands = other._commands;
     return *this;
 }
 
@@ -75,8 +81,8 @@ void Server::on_client_connect(void)
 {
     sockaddr_in  client_address;
     socklen_t    client_address_size = sizeof(client_address);
-
     int client_fd = accept(_socket, (struct sockaddr *)&client_address, &client_address_size);
+
     if (client_fd == -1)
         throw std::runtime_error("Error: can't accept client connection: " + std::string(strerror(errno)));
 
@@ -97,28 +103,58 @@ void Server::on_client_connect(void)
 void Server::client_message(int i, std::string message)
 {
     int client_fd = _pollfds[i].fd;
-
-    client_fd = 0; //TODO: actually use this
+    Client *client;
     std::istringstream iss(message);
     std::string line;
 
+
+    client = get_client(client_fd);
     //parse from line to line, from the input string stream to the temp line variable
     while (std::getline(iss, line))
     {
-        //TODO: check if client is disconnected
-        // save the line in a buffer if it does not end in \r\n
+        if (client->is_disconnected())
+            break ;
 
         if (line.length() == 0)
             continue ;
 
+        // save the line in a buffer if it does not end in \n
+        if (line.length() > 0 && line[line.length()] != '\n') {
+            client->set_buffer(line);
+            continue ;
+        }
+
+        try {
+            if (client->get_buffer().length() > 0)
+            {
+                line = client->get_buffer() + line;
+                client->clear_buffer();
+            }
+
+            //TODO remove :33 :3
+            std::cout << "*tempnickname" << i << ": " << line << std::endl;
+
+            Message *msg;
+            msg = new Message(line);
+            std::string cmd = msg->get_command();
+
+        } catch(std::exception &e) {
+            std::cerr << e.what() << std::endl;
+        }
         //TODO create message object
         //TODO when user class is defined, call the nickname here
-        std::cout << "*tempnickname" << i << ": " << line << std::endl;
     }
 
 }
 
-
+Client  *Server::get_client(int client_fd)
+{
+    std::map<int, Client *>::iterator it = _clients.find(client_fd);
+    if (it == _clients.end()) {
+        throw std::runtime_error("Client not found");
+    }
+    return it->second;
+}
 
 //basicamente, esto tiene un loop infinito donde va vigilando, mediante la funcion poll, si en cada fd
 // del vector PollFds, ha sucedido el evento que le hemos asignado. le asignamos POLLIN: there is data to read.

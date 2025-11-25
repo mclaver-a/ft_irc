@@ -38,7 +38,13 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
+#include "../Message/Message.hpp"
+#include "../Commands/Commands.hpp"
+
+
 class Client;
+
+class Command;
 
 class Server
 {
@@ -54,6 +60,7 @@ class Server
 
         std::vector<pollfd>                 _pollfds;
         std::map<int, Client *>             _clients;
+        std::map<std::string, Command>     _commands;
         //TBD> Clients, channels & commands
     public:
         // Constructors
@@ -71,5 +78,7 @@ class Server
         void    event_loop(void);
         void    open_general_socket(std::string port);
         void    client_message(int i, std::string message);
+        Client  *get_client(int client_fd);
+
 
 };
