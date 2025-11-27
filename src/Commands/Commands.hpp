@@ -13,8 +13,13 @@
 #pragma once
 # include "../Server/Server.hpp"
 # include "../Message/Message.hpp"
+# include "../Client/Client.hpp"
 
 class Server;
+
+class Client;
+
+class Message;
 
 class Command {
 protected:
@@ -31,12 +36,6 @@ public:
     Command &operator=(const Command &other);
 
     // Member functions
-    bool            check_bot_command(std::string message, Channel *channel);
-    void            bot_reply(Client *client, Channel *channel, std::string message);
-    std::string     get_current_date(void);
-    std::string     get_current_time(void);
-    std::string     get_random_joke(void);
-
     virtual void    invoke(Client *client, Message *message) = 0;
 };
 

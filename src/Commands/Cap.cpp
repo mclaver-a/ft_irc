@@ -10,4 +10,18 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Commands.hpp"
 
+Cap::Cap(Server *server) : Command("CAP", server) {
+    return ;
+}
+
+Cap::~Cap(void) {
+    return ;
+}
+
+void Cap::invoke(Client *client, Message *message) {
+    (void)message;
+    //TODO figure out what the fuck these codes mean
+    client->reply("302", ":Nothing too special about this server :3");
+}

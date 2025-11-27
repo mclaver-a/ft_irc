@@ -43,6 +43,11 @@ std::string Message::get_command(void) const
     return (this->_command);
 }
 
+std::vector<std::string> Message::get_params(void) const
+{
+    return (this->_params);
+}
+
 
 void    Message::_tokenize(std::string message) {
     std::vector<std::string> split_msg = split(message);

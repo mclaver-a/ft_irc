@@ -30,7 +30,7 @@ Server::Server(std::string port, std::string password)
 
     _commands["USER"] = new User(this);
     _commands["PASS"] = new Pass(this);
-    _commands["NICK"] = new Nick(this);
+    _commands["CAP"] = new Cap(this);
 
     return ;
 }
@@ -118,9 +118,11 @@ void Server::client_message(int i, std::string message)
         if (line.length() == 0)
             continue ;
 
-        // save the line in a buffer if it does not end in \n
-        if (line.length() > 0 && line[line.length()] != '\n') {
+        std::cout << "line is " << line << std::endl;
+        // save the line in a buffer if it does not end in \r
+        if (line.length() > 0 && line[line.length() - 1] != '\n') {
             client->set_buffer(line);
+
             continue ;
         }
 

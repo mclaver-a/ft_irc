@@ -41,6 +41,7 @@
 #include "../Message/Message.hpp"
 #include "../Commands/Commands.hpp"
 
+class Message;
 
 class Client;
 
@@ -60,7 +61,7 @@ class Server
 
         std::vector<pollfd>                 _pollfds;
         std::map<int, Client *>             _clients;
-        std::map<std::string, Command>     _commands;
+        std::map<std::string, Command *>     _commands;
         //TBD> Clients, channels & commands
     public:
         // Constructors

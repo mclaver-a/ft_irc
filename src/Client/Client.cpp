@@ -128,9 +128,49 @@ void        Client::set_realname(const std::string &realname) {
 
 void        Client::set_buffer(std::string message) {
     this->_message_buffer += message;
-    std::cout << "Buffer for " << this->get_nickname() << ": " << _message_buffer << std::endl;
 }
 
 void        Client::clear_buffer(void) {
     this->_message_buffer.clear();
+}
+
+void        Client::register_client(void)
+{
+    //TODO check if we can actually register (nick, username and realname have to be set)
+    _registered = true;
+}
+
+void        Client::authenticate(std::string password) {
+    if (password == _password)
+        _authenticated = true;
+    return ;
+}
+
+void        Client::disconnect(std::string message) {
+    if (!_disconnected) {
+        //creo que 101 significa disconnect
+        reply("101", message);
+        close(_socket);
+        _disconnected = true;
+    }
+}
+
+void        Client::reply(std::string code, std::string message)
+{
+    std::string hostname_str;
+    std::string code_str;
+    std::string nickname_str;
+
+    hostname_str = ":" + _server_hostname + " ";
+    code_str = code.empty() ? "" : code + " ";
+    nickname_str = _nickname.empty() ? "unregistered " : _nickname + " ";
+
+    // Format ":<server_hostname> <code> <nickname> :<message>\r\n"
+    std::string reply;
+    reply = hostname_str + code_str + nickname_str + message + "\n";
+
+    std::cout << "Reply: " << reply << std::endl;
+
+    // Send reply to client
+    send(_socket, reply.c_str(), reply.length(), 0);
 }

@@ -73,7 +73,7 @@ class Client
         void        unoper(void);
 
     // Member functions: Message handling
-        //void        reply(std::string code, std::string message);
+        void        reply(std::string code, std::string message);
         void        broadcast(Client *sender, std::string command, std::string target, std::string message);
 
     // Getters
