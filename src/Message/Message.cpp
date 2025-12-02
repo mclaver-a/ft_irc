@@ -79,5 +79,6 @@ void    Message::_tokenize(std::string message) {
         }
         _params.push_back(split_msg[i]);
     }
+    std::cout << "pepe: " << _command << " and pefpis: " << std::endl;
     return ;
 }

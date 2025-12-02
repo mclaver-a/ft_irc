@@ -31,6 +31,7 @@ Server::Server(std::string port, std::string password)
     _commands["USER"] = new User(this);
     _commands["PASS"] = new Pass(this);
     _commands["CAP"] = new Cap(this);
+    _commands["NICK"] = new Nick(this);
 
     return ;
 }
@@ -119,12 +120,12 @@ void Server::client_message(int i, std::string message)
             continue ;
 
         std::cout << "line is " << line << std::endl;
-        // save the line in a buffer if it does not end in \r
-        if (line.length() > 0 && line[line.length() - 1] != '\n') {
-            client->set_buffer(line);
 
-            continue ;
-        }
+        // save the line in a buffer if it does not end in \r
+        if (line.length() > 0 && line[line.length() - 1] != '\r') {
+                    client->set_buffer(line);
+                    continue ;
+                }
 
         try {
             if (client->get_buffer().length() > 0)
@@ -139,6 +140,14 @@ void Server::client_message(int i, std::string message)
             Message *msg;
             msg = new Message(line);
             std::string cmd = msg->get_command();
+            std::cout << cmd << " was called " << std::endl;
+
+            // Check if the command is known
+            if (_commands.find(cmd) == _commands.end())
+                client->reply("woaah... im so full.. hhmmph", ":Unknown command " + cmd);
+            else
+                _commands[cmd]->invoke(client, msg);
+            delete msg;
 
         } catch(std::exception &e) {
             std::cerr << e.what() << std::endl;
@@ -156,6 +165,13 @@ Client  *Server::get_client(int client_fd)
         throw std::runtime_error("Client not found");
     }
     return it->second;
+}
+
+Client                  *Server::get_client(std::string nickname) {
+    for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+        if (it->second->get_nickname() == nickname)
+            return it->second;
+    return NULL;
 }
 
 //basicamente, esto tiene un loop infinito donde va vigilando, mediante la funcion poll, si en cada fd

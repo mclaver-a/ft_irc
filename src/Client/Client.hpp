@@ -95,6 +95,7 @@ class Client
         //void        set_nickname(const std::string &nickname);
         void        set_username(const std::string &username);
         void        set_realname(const std::string &realname);
+        void        set_nickname(const std::string &nickname);
         void        set_buffer(std::string message);
         void        clear_buffer(void);
 };

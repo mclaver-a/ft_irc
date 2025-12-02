@@ -80,6 +80,7 @@ class Server
         void    open_general_socket(std::string port);
         void    client_message(int i, std::string message);
         Client  *get_client(int client_fd);
+        Client  *get_client(std::string nickname);
 
 
 };

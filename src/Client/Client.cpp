@@ -126,6 +126,11 @@ void        Client::set_realname(const std::string &realname) {
     _realname = realname;
 }
 
+void        Client::set_nickname(const std::string &nickname)
+{
+    _nickname = nickname;
+}
+
 void        Client::set_buffer(std::string message) {
     this->_message_buffer += message;
 }
