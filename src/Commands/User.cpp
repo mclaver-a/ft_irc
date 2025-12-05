@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Commands.hpp"
+#include <ostream>
 
 User::User(Server *server) : Command("USER", server) {
     return ;
@@ -26,11 +27,13 @@ void User::invoke(Client *client, Message *message)
     std::string realname;
     (void)message;
 
+    std::cout << "WALLAHI" << std::endl;
     //TODO: check legality of username and realname. also check if the user is already registered.
+    username = message->get_params()[0];
+    realname = message->get_params()[3];
+    std::cout << username << " " << realname << std::endl;
 
     client->set_username(username);
     client->set_realname(realname);
     client->register_client();
-
-    return ;
 }

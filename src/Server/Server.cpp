@@ -119,7 +119,7 @@ void Server::client_message(int i, std::string message)
         if (line.length() == 0)
             continue ;
 
-        std::cout << "line is " << line << std::endl;
+        std::cout << "---line is " << line << std::endl;
 
         // save the line in a buffer if it does not end in \r
         if (line.length() > 0 && line[line.length() - 1] != '\r') {
@@ -135,7 +135,7 @@ void Server::client_message(int i, std::string message)
             }
 
             //TODO remove :33 :3
-            std::cout << "*tempnickname" << i << ": " << line << std::endl;
+            std::cout << client->get_nickname() << ": " << line << std::endl;
 
             Message *msg;
             msg = new Message(line);

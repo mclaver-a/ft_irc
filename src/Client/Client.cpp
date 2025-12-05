@@ -60,6 +60,26 @@ Client &Client::operator=(const Client &other) {
     return *this;
 }
 
+void        Client::reply(std::string code, std::string message)
+{
+    std::string hostname_str;
+    std::string code_str;
+    std::string nickname_str;
+
+    hostname_str = ":" + _server_hostname + " ";
+    code_str = code.empty() ? "" : code + " ";
+    nickname_str = _nickname.empty() ? "unregistered " : _nickname + " ";
+
+    // Format ":<server_hostname> <code> <nickname> :<message>\r\n"
+    std::string reply;
+    reply = hostname_str + code_str + nickname_str + message + "\n";
+
+    std::cout << "Reply: " << reply << std::endl;
+
+    // Send reply to client
+    send(_socket, reply.c_str(), reply.length(), 0);
+}
+
 std::string Client::get_server_hostname(void) const {
     return _server_hostname;
 }
@@ -112,12 +132,6 @@ bool        Client::has_nickname(void) const {
     return !_nickname.empty();
 }
 
-//TODO
-//void        Client::set_nickname(const std::string &nickname) {
-//    reply("005", ":Nickname set to " + nickname);
-//    _nickname = nickname;
-//}
-
 void        Client::set_username(const std::string &username) {
     _username = username;
 }
@@ -141,8 +155,17 @@ void        Client::clear_buffer(void) {
 
 void        Client::register_client(void)
 {
-    //TODO check if we can actually register (nick, username and realname have to be set)
-    _registered = true;
+    if (!this->has_nickname())
+    {
+        //error message no nickname: 431
+        reply("431", ":You must choose a nickname before registering");
+    } else if (!this->get_username().empty() && !this->get_realname().empty()) {
+
+        _registered = true;
+        //welcome code: 001
+        reply("001", ":Welcome to the Internet Relay Network " + this->get_nickname() + "!" + this->get_username() + "@" + this->get_hostname());
+    }
+    std::cout << "im a fucking retard: " << this->get_username() << " " << this->get_realname() << std::endl;
 }
 
 void        Client::authenticate(std::string password) {
@@ -158,24 +181,4 @@ void        Client::disconnect(std::string message) {
         close(_socket);
         _disconnected = true;
     }
-}
-
-void        Client::reply(std::string code, std::string message)
-{
-    std::string hostname_str;
-    std::string code_str;
-    std::string nickname_str;
-
-    hostname_str = ":" + _server_hostname + " ";
-    code_str = code.empty() ? "" : code + " ";
-    nickname_str = _nickname.empty() ? "unregistered " : _nickname + " ";
-
-    // Format ":<server_hostname> <code> <nickname> :<message>\r\n"
-    std::string reply;
-    reply = hostname_str + code_str + nickname_str + message + "\n";
-
-    std::cout << "Reply: " << reply << std::endl;
-
-    // Send reply to client
-    send(_socket, reply.c_str(), reply.length(), 0);
 }
