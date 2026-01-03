@@ -22,8 +22,7 @@ Pass::~Pass(void) {
 
 void Pass::invoke(Client *client, Message *message)
 {
-    //TODO check if the client is already authenticated
-    //
+    //TODO check if the client is already authenticated:
 
     client->authenticate(message->get_params()[0]);
     if (!client->is_authenticated())
