@@ -60,6 +60,25 @@ Client &Client::operator=(const Client &other) {
     return *this;
 }
 
+void        Client::broadcast(Client *sender, std::string command, std::string target, std::string message) {
+    // Client->Client or Client->Channel broadcast
+    std::string sender_str;
+    std::string command_str;
+    std::string target_str;
+    std::string message_str;
+
+    sender_str = ":" + sender->get_nickname() + "!" + sender->get_username() + "@" + sender->get_hostname() + " ";
+    command_str = command + " ";
+    target_str = target + " ";
+    message_str = command == "KICK" || command == "INVITE" || message.empty() || message[0] == ':' ? message : ":" + message;
+
+    // Format ":<sender> <command> <target> :<message>\r\n"
+    std::string reply = sender_str + command_str + target_str + message_str + "\r\n";
+
+    send(_socket, reply.c_str(), reply.length(), 0);
+    return ;
+}
+
 void        Client::reply(std::string code, std::string message)
 {
     std::string hostname_str;
@@ -166,6 +185,18 @@ void        Client::register_client(void)
         reply("001", ":Welcome to the Internet Relay Network " + this->get_nickname() + "!" + this->get_username() + "@" + this->get_hostname());
     }
     std::cout << "im a fucking retard: " << this->get_username() << " " << this->get_realname() << std::endl;
+}
+
+
+void        Client::oper(std::string input) {
+    if (input == g_oper_password)
+        _oper = true;
+    return ;
+}
+
+void        Client::unOper(void) {
+    _oper = false;
+    return ;
 }
 
 void        Client::authenticate(std::string password) {

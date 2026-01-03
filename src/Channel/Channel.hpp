@@ -14,6 +14,7 @@
 
 #include "../Client/Client.hpp"
 #include "../Message/Message.hpp"
+#include "../Server/Server.hpp"
 #include <string>
 
 class Channel {
@@ -40,14 +41,23 @@ class Channel {
         Channel &operator=(const Channel &other);
 
         void                    join(Client *client);
+        void                    part(Client *client, std::string message);
         void                    quit(Client *client, std::string message);
-        void                    leave(Client *client);
+        void                    topic(Client *client, std::vector<std::string> params);
+        void                    names(Client *client);
+        void                    mode(Client *client, std::string message);
+        void                    kick(Client *client, Client *target, std::string reason);
 
         void                    broadcast(Client *sender, std::string command, std::string target, std::string message);
 
         void                    add_chanop(Client *client);
         void                    remove_chanop(Client *client);
         bool                    is_chanop(std::string nickname);
+
+        void                    invite(Client *client);
+        void                    leave(Client *client);
+        void                    set_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name);
+        void                    unset_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name);
 
         // getters setters
         std::string             get_name(void) const;

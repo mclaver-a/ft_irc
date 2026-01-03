@@ -32,6 +32,10 @@
 
 # include "../Utils/utils.hpp"
 
+// global variable for op
+const std::string   g_oper_password = "chungus";
+
+
 class Channel;
 
 class Client
@@ -70,7 +74,7 @@ class Client
         void        authenticate(std::string password);
         void        register_client(void);
         void        oper(std::string oper_password);
-        void        unoper(void);
+        void        unOper(void);
 
     // Member functions: Message handling
         void        reply(std::string code, std::string message);

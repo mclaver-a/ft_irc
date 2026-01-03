@@ -1,7 +1,7 @@
 NAME		= ircserv
 
 CC			= c++
-CFLAGS		= -Wall -Wextra -Werror -std=c++98
+CFLAGS		= -Wall -Wextra -Werror -std=c++98 -g
 
 RM			= rm -rf
 
@@ -16,10 +16,12 @@ VPATH		= $(SRC_DIR) \
 			$(SRC_DIR)Message \
 			$(SRC_DIR)Commands \
 			$(SRC_DIR)Commands/opps \
+			$(SRC_DIR)Channel
 
 SRC			= main.cpp Server.cpp utils.cpp Client.cpp Message.cpp \
-			User.cpp Pass.cpp Commands.cpp Cap.cpp Nick.cpp
-
+			User.cpp Pass.cpp Commands.cpp Cap.cpp Nick.cpp Channel.cpp \
+			Join.cpp Oper.cpp Who.cpp Mode.cpp
+			
 OBJ			= $(addprefix $(OBJ_DIR), $(notdir $(SRC:.cpp=.o)))
 
 $(OBJ_DIR)%.o: %.cpp

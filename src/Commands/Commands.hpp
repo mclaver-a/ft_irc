@@ -74,3 +74,39 @@ public:
     // Member functions
     void    invoke(Client *client, Message *message);
 };
+
+class Join : public Command {
+public:
+    Join(Server *server);
+    ~Join(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Oper : public Command {
+public:
+    Oper(Server *server);
+    ~Oper(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Mode : public Command {
+public:
+    Mode(Server *server);
+    ~Mode(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Who : public Command {
+public:
+    Who(Server *server);
+    ~Who(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};

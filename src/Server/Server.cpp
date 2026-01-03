@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 # include "Server.hpp"
+# include "../Commands/Commands.hpp"
 # include "../Utils/utils.hpp"
 #include <exception>
 #include <sstream>
@@ -32,6 +33,11 @@ Server::Server(std::string port, std::string password)
     _commands["PASS"] = new Pass(this);
     _commands["CAP"] = new Cap(this);
     _commands["NICK"] = new Nick(this);
+    _commands["JOIN"] = new Join(this);
+    _commands["OPER"] = new Oper(this);
+    _commands["WHO"] = new Who(this);
+    _commands["MODE"] = new Mode(this);
+
 
     return ;
 }
@@ -262,4 +268,29 @@ void Server::open_general_socket(std::string port)
 
     if (listen(_socket, 85) == -1)
         throw std::runtime_error("Error: reading from server socket");
+}
+
+void                    Server::add_channel(Channel *channel) {
+    _channels.push_back(channel);
+    return ;
+}
+
+//getters setters
+
+Channel                 *Server::get_channel(std::string name) {
+    // if name doesn't end in ":hostname", append ":hostname"
+    if (name.find(":") == std::string::npos)
+        name += ":" + _hostname;
+    for (size_t i = 0; i < _channels.size(); i++)
+        if (_channels[i]->get_name() == name)
+            return _channels[i];
+    return NULL;
+}
+
+std::string     Server::get_hostname(void) {
+    return _hostname;
+}
+
+std::string     Server::get_oper_password(void) {
+    return _oper_password;
 }

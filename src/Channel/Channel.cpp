@@ -67,6 +67,35 @@ void    Channel::quit(Client *client, std::string message) {
     return ;
 }
 
+void    Channel::topic(Client *client, std::vector<std::string> params) {
+    // Get channel topic
+    if (params.size() == 1) {
+        if (this->get_topic().empty()) {
+            client->reply(RPL_NOTOPIC, this->get_name() + " " + ":No topic is set");
+        } else {
+            client->reply(RPL_TOPIC, this->get_name() + " " + this->get_topic());
+        }
+    }
+    // Set channel topic
+    if (params.size() == 2) {
+        std::string topic = params[1];
+        this->set_topic(topic);
+        this->broadcast(client, "TOPIC", this->get_name(), topic);
+    }
+    return ;
+}
+
+void    Channel::names(Client *client) {
+    client->reply(RPL_NAMREPLY, "= " + this->get_name() + " :" + this->get_client_names());
+    client->reply(RPL_ENDOFNAMES, this->get_name() + " :End of /NAMES list");
+    return ;
+}
+
+void    Channel::mode(Client *client, std::string message) {
+    this->broadcast(client, "MODE", this->get_name(), message);
+    return ;
+}
+
 void    Channel::leave(Client *client) {
     // Remove client from channel operators
     std::vector<Client *>::iterator it_op = std::find(this->_op_clients.begin(), this->_op_clients.end(), client);
@@ -90,6 +119,136 @@ void    Channel::broadcast(Client *sender, std::string command, std::string targ
             continue ;
         (*it)->broadcast(sender, command, target, message);
     }
+    return ;
+}
+
+void     Channel::set_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name) {
+
+    std::string message = "";
+    Client      *target;
+    std::string target_name;
+    std::string limit_param;
+    int         limit;
+
+    switch (mode) {
+        case 't':
+            _topic_restriction = true;
+            message = "+t";
+            break;
+        case 'i':
+            _invite_only = true;
+            message = "+i";
+            break;
+        case 'o':
+            if (params.size() < 3) {
+                client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
+                break ;
+            }
+            target_name = params[2];
+            target = get_client(target_name, _clients);
+            if (!this->has_client(target)) {
+                client->reply(ERR_USERNOTINCHANNEL, channel_name + " " + ":User is not on this channel");
+                break ;
+            }
+            if (this->is_chanop(target_name)) {
+                client->reply(ERR_ALREADYOPER, channel_name + " " + ":User is already channel operator");
+                break ;
+            }
+            this->add_chanop(target);
+            message = "+o " + target_name;
+            break;
+        case 'k':
+            if (params.size() < 3) {
+                client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Must set key");
+                break ;
+            }
+            _key = params[2];
+            _has_key = true;
+            message = "+k " + _key;
+            break;
+        case 'l':
+            if (params.size() < 3) {
+                client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
+                break ;
+            }
+            limit_param = params[2];
+            // Check if limit_param is a number
+            if (limit_param.find_first_not_of("0123456789") != std::string::npos) {
+                client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown mode char");
+                break ;
+            }
+            // Check if limit is greater than 0
+            limit = std::atoi(limit_param.c_str());
+            if (limit < 1) {
+                client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Limit must be greater than 0");
+                break ;
+            }
+            this->_has_user_limit = true;
+            this->_user_limit = limit;
+            message = "+l " + limit_param;
+            break;
+        default:
+            client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown mode char");
+            break;
+    }
+
+    if (message.empty())
+        return ;
+    this->mode(client, message);
+    return ;
+}
+
+void     Channel::unset_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name) {
+    std::string message = "";
+    Client      *target;
+    std::string target_name;
+    std::string limit_param;
+
+    switch (mode) {
+        case 't':
+            _topic_restriction = false;
+            message = "-t";
+            break;
+        case 'i':
+            _invite_only = false;
+            message = "-i";
+            break;
+        case 'o':
+            if (params.size() < 3) {
+                client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
+                break ;
+            }
+            target_name = params[2];
+            target = get_client(target_name, _clients);
+            if (!this->has_client(target)) {
+                client->reply(ERR_USERNOTINCHANNEL, channel_name + " " + ":User is not on this channel");
+                break ;
+            }
+            if (!this->is_chanop(target_name)) {
+                client->reply(ERR_CHANOPRIVSNEEDED, channel_name + " " + ":User is not channel operator");
+                break ;
+            }
+            this->remove_chanop(target);
+            message = "-o " + target_name;
+            break;
+        case 'k':
+            _key = "";
+            _has_key = false;
+            message = "-k";
+            break;
+        case 'l':
+            this->_has_user_limit = false;
+            this->_user_limit = 0;
+            message = "-l";
+            break;
+        default:
+            client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown mode char");
+            break;
+    }
+
+    if (message.empty())
+        return ;
+    this->mode(client, message);
     return ;
 }
 
