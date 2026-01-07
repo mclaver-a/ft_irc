@@ -22,6 +22,5 @@ Cap::~Cap(void) {
 
 void Cap::invoke(Client *client, Message *message) {
     (void)message;
-    //TODO figure out what the fuck these codes mean
-    client->reply("302", ":Nothing too special about this server :3");
+    client->reply(RPL_CAP, ":Nothing too special about this server :3");
 }

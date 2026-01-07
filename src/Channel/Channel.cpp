@@ -23,7 +23,6 @@ Channel::Channel(std::string name, std::string hostname)
     _invite_only(false),
     _has_key(false),
     _has_user_limit(false) {
-    return ;
 }
 
 Channel::Channel(const Channel &other) {
@@ -31,9 +30,8 @@ Channel::Channel(const Channel &other) {
 }
 
 Channel::~Channel(void) {
-    // Clear the clients vector
+    // TODO
     this->_clients.clear();
-    return ;
 }
 
 Channel &Channel::operator=(const Channel &other) {
@@ -55,6 +53,10 @@ Channel &Channel::operator=(const Channel &other) {
 
 //add join, quit, topic, etc...
 void    Channel::join(Client *client) {
+    std::vector<Client *>::iterator it_op = std::find(this->_invited_clients.begin(), this->_invited_clients.end(), client);
+    if (it_op != _invited_clients.end())
+        _invited_clients.erase(it_op);
+
     this->_clients.push_back(client);
     this->broadcast(client, "JOIN", this->get_name(), "");
     return ;
@@ -82,44 +84,56 @@ void    Channel::topic(Client *client, std::vector<std::string> params) {
         this->set_topic(topic);
         this->broadcast(client, "TOPIC", this->get_name(), topic);
     }
-    return ;
+}
+
+void    Channel::invite(Client *client) {
+    //make sure client isnt already present in the channel
+    if (get_client_names().find(client->get_nickname()) == (size_t)-1)
+        _invited_clients.push_back(client);
+}
+
+void    Channel::kick(Client *client, Client *target, std::string reason) {
+
+    if (client != target && !is_chanop(client->get_nickname())) {
+        client->reply(ERR_CHANOPRIVSNEEDED, this->get_name() + " :You're not channel operator");
+        return ;
+    }
+
+    this->broadcast(client, "KICK", this->get_name(), target->get_nickname() + " :" + reason);
+    this->leave(target);
 }
 
 void    Channel::names(Client *client) {
     client->reply(RPL_NAMREPLY, "= " + this->get_name() + " :" + this->get_client_names());
     client->reply(RPL_ENDOFNAMES, this->get_name() + " :End of /NAMES list");
-    return ;
 }
 
 void    Channel::mode(Client *client, std::string message) {
     this->broadcast(client, "MODE", this->get_name(), message);
-    return ;
 }
 
 void    Channel::leave(Client *client) {
     // Remove client from channel operators
-    std::vector<Client *>::iterator it_op = std::find(this->_op_clients.begin(), this->_op_clients.end(), client);
-    if (it_op != this->_op_clients.end())
-        this->_op_clients.erase(it_op);
+    std::vector<Client *>::iterator it_op = std::find(_op_clients.begin(), _op_clients.end(), client);
+    if (it_op != _op_clients.end())
+        _op_clients.erase(it_op);
 
     // Remove client from channel
-    std::vector<Client *>::iterator it = std::find(this->_clients.begin(), this->_clients.end(), client);
-    if (it != this->_clients.end()) {
-        this->_clients.erase(it);
-        this->_user_quantity--;
+    std::vector<Client *>::iterator it = std::find(_clients.begin(), _clients.end(), client);
+    if (it != _clients.end()) {
+        _clients.erase(it);
+        _user_quantity--;
     }
-    return ;
 }
 
 void    Channel::broadcast(Client *sender, std::string command, std::string target, std::string message) {
     if (target.empty())
         target = this->get_name();
-    for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
+    for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
         if (command == "PRIVMSG" && *it == sender)
             continue ;
         (*it)->broadcast(sender, command, target, message);
     }
-    return ;
 }
 
 void     Channel::set_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name) {
@@ -159,7 +173,7 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
             break;
         case 'k':
             if (params.size() < 3) {
-                client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Must set key");
+                client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Must specify the key");
                 break ;
             }
             _key = params[2];
@@ -195,7 +209,6 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
     if (message.empty())
         return ;
     this->mode(client, message);
-    return ;
 }
 
 void     Channel::unset_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name) {
@@ -249,21 +262,18 @@ void     Channel::unset_mode(char mode, std::vector<std::string> params, Client 
     if (message.empty())
         return ;
     this->mode(client, message);
-    return ;
 }
 
 //operator management
 
 void    Channel::add_chanop(Client *client) {
     this->_op_clients.push_back(client);
-    return ;
 }
 
 void    Channel::remove_chanop(Client *client) {
     std::vector<Client *>::iterator it = std::find(this->_op_clients.begin(), this->_op_clients.end(), client);
     if (it != this->_op_clients.end())
         this->_op_clients.erase(it);
-    return ;
 }
 
 bool    Channel::is_chanop(std::string nickname) {
@@ -410,10 +420,8 @@ bool    Channel::has_client(Client *client) {
 
 void                Channel::set_topic(const std::string topic) {
     this->_topic = topic;
-    return ;
 }
 
 void               Channel::increase_user_quantity(void) {
     this->_user_quantity++;
-    return ;
 }

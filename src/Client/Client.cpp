@@ -136,10 +136,20 @@ bool        Client::is_disconnected(void) const {
 }
 
 bool        Client::is_authenticated(void) const {
+    if (_authenticated)
+        std::cout << "is authd" << std::endl;
+    else
+        std::cout << "is not authd" << std::endl;
+
     return _authenticated;
 }
 
 bool        Client::is_registered(void) const {
+    if (_registered)
+        std::cout << "is registered" << std::endl;
+    else
+        std::cout << "is notregistered" << std::endl;
+
     return _registered;
 }
 
@@ -176,15 +186,13 @@ void        Client::register_client(void)
 {
     if (!this->has_nickname())
     {
-        //error message no nickname: 431
-        reply("431", ":You must choose a nickname before registering");
+        reply(ERR_NONICKNAMEGIVEN, ":You must choose a nickname before registering");
     } else if (!this->get_username().empty() && !this->get_realname().empty()) {
 
         _registered = true;
         //welcome code: 001
         reply("001", ":Welcome to the Internet Relay Network " + this->get_nickname() + "!" + this->get_username() + "@" + this->get_hostname());
     }
-    std::cout << "im a fucking retard: " << this->get_username() << " " << this->get_realname() << std::endl;
 }
 
 

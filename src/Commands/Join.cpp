@@ -20,10 +20,6 @@ Join::~Join(void) {
     return ;
 }
 
-/******************************************************************************/
-/*                         Member functions                                   */
-/******************************************************************************/
-
 void Join::invoke(Client *client, Message *message) {
     if (client->is_authenticated() && client->is_registered()) {
         if (message->get_params().size() < 1) {

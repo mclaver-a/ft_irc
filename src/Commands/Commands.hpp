@@ -93,6 +93,15 @@ public:
     void    invoke(Client *client, Message *message);
 };
 
+class UnOper : public Command {
+public:
+    UnOper(Server *server);
+    ~UnOper(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
 class Mode : public Command {
 public:
     Mode(Server *server);
@@ -102,10 +111,46 @@ public:
     void    invoke(Client *client, Message *message);
 };
 
+class Quit : public Command {
+public:
+    Quit(Server *server);
+    ~Quit(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
 class Who : public Command {
 public:
     Who(Server *server);
     ~Who(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class List : public Command {
+public:
+    List(Server *server);
+    ~List(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Invite : public Command {
+public:
+    Invite(Server *server);
+    ~Invite(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Kick : public Command {
+public:
+    Kick(Server *server);
+    ~Kick(void);
 
     // Member functions
     void    invoke(Client *client, Message *message);

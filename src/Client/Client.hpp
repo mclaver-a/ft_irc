@@ -31,6 +31,7 @@
 # include <sstream>
 
 # include "../Utils/utils.hpp"
+# include "../Server/Server.hpp"
 
 // global variable for op
 const std::string   g_oper_password = "chungus";

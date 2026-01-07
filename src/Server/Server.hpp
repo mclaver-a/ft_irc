@@ -38,12 +38,20 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
+# define RPL_CAP                    "302" // <client> <subcommand> :are supported capabilities
+# define RPL_LISTSTART              "321" // Channel :Users  Name
+# define RPL_LIST                   "322" // <channel> <# visible> :<topic>
+# define RPL_LISTEND                "323" // :End of /LIST
+
+# define RPL_QUIT                   "101" // :Goodbye!
 
 # define RPL_TOPIC                  "332" // <channel> :<topic>
 # define RPL_NOTOPIC                "331" // <client> <channel> :No topic is set
 # define RPL_NAMREPLY               "353" // = <channel> :<nick1> <nick2> <nick3> ...
 # define RPL_ENDOFNAMES             "366" // <channel> :End of /NAMES list
 # define RPL_YOUREOPER              "381" // <client> :You are now an IRC operator
+
+# define RPL_INVITING               "341" // <client> <nick> <channel>
 
 # define RPL_UMODEIS                "221" // <client> <mode>
 # define RPL_ENDOFWHO               "315" // <mask> :End of WHO list
@@ -111,7 +119,6 @@ class Server
         std::map<int, Client *>             _clients;
         std::map<std::string, Command *>    _commands;
         std::vector<Channel *>              _channels;
-        //TBD> Clients, channels & commands
     public:
         // Constructors
         Server(std::string port, std::string password);
@@ -121,10 +128,8 @@ class Server
         // Assignment operator
         Server &operator=(const Server &other);
 
-        // Awful things we will have to add soon:
-/*      void    create_socket(void);
-        void    start(void);*/
         void        on_client_connect(void);
+        void        on_client_disconnect(int client_fd);
         void        event_loop(void);
         void        open_general_socket(std::string port);
         void        client_message(int i, std::string message);
@@ -132,6 +137,9 @@ class Server
         Client      *get_client(std::string nickname);
         std::string get_hostname(void);
         std::string get_oper_password(void);
+        std::vector<Channel *> list_channels(void);
+        void        remove_client(std::string nickname);
+        void        testprint(void);
 
         void        add_channel(Channel *channel);
         Channel     *get_channel(std::string name);

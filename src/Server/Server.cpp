@@ -25,7 +25,7 @@ Server::Server(std::string port, std::string password)
     _port(port),
     _password(password),
     _hostname("127.0.0.1"),
-    _oper_password("chungus"),//cambiar + adelante por lo que definamos en Client
+    _oper_password("chungus"),
     _info("IRC server by dmarijan and mclaver-...fuggetaboutit")
 {
 
@@ -35,8 +35,13 @@ Server::Server(std::string port, std::string password)
     _commands["NICK"] = new Nick(this);
     _commands["JOIN"] = new Join(this);
     _commands["OPER"] = new Oper(this);
+    _commands["UNOPER"] = new UnOper(this);
     _commands["WHO"] = new Who(this);
     _commands["MODE"] = new Mode(this);
+    _commands["LIST"] = new List(this);
+    _commands["QUIT"] = new Quit(this);
+    _commands["INVITE"] = new Invite(this);
+    _commands["KICK"] = new Kick(this);
 
 
     return ;
@@ -107,6 +112,24 @@ void Server::on_client_connect(void)
     std::cout << client->get_hostname() << ":" << client->get_port() << " has connected" << std::endl;
 }
 
+void Server::on_client_disconnect(int client_fd) {
+    // Remove the client from the map
+    std::map<int, Client *>::iterator it = _clients.find(client_fd);
+    if (it != _clients.end()) {
+        it->second->disconnect("Server disconnected due to inactivity");
+        delete it->second;
+        _clients.erase(it);
+    }
+    // Remove the client from the vector
+    for (size_t i = 0; i < _pollfds.size(); i++) {
+        if (_pollfds[i].fd == client_fd) {
+            _pollfds.erase(_pollfds.begin() + i);
+            break;
+        }
+    }
+    return ;
+}
+
 void Server::client_message(int i, std::string message)
 {
     int client_fd = _pollfds[i].fd;
@@ -125,8 +148,6 @@ void Server::client_message(int i, std::string message)
         if (line.length() == 0)
             continue ;
 
-        std::cout << "---line is " << line << std::endl;
-
         // save the line in a buffer if it does not end in \r
         if (line.length() > 0 && line[line.length() - 1] != '\r') {
                     client->set_buffer(line);
@@ -139,9 +160,6 @@ void Server::client_message(int i, std::string message)
                 line = client->get_buffer() + line;
                 client->clear_buffer();
             }
-
-            //TODO remove :33 :3
-            std::cout << client->get_nickname() << ": " << line << std::endl;
 
             Message *msg;
             msg = new Message(line);
@@ -158,8 +176,6 @@ void Server::client_message(int i, std::string message)
         } catch(std::exception &e) {
             std::cerr << e.what() << std::endl;
         }
-        //TODO create message object
-        //TODO when user class is defined, call the nickname here
     }
 
 }
@@ -173,11 +189,24 @@ Client  *Server::get_client(int client_fd)
     return it->second;
 }
 
-Client                  *Server::get_client(std::string nickname) {
+Client *Server::get_client(std::string nickname) {
     for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
         if (it->second->get_nickname() == nickname)
             return it->second;
     return NULL;
+}
+
+void   Server::remove_client(std::string nickname)
+{
+    for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+    {
+        if (it->second->get_nickname() == nickname)
+        {
+            delete it->second;
+            _clients.erase(it);
+            return ;
+        }
+    }
 }
 
 //basicamente, esto tiene un loop infinito donde va vigilando, mediante la funcion poll, si en cada fd
@@ -229,6 +258,14 @@ void Server::event_loop(void)
         //this loops through the pollfds for all the possible clients
         for (int i = 2; i < (int)_pollfds.size(); i++)
         {
+            if (_clients.find(_pollfds[i].fd)->second->is_disconnected()) {
+                on_client_disconnect(_pollfds[i].fd);
+                continue ;
+            }
+            // If the client received a HUP event, disconnect it
+            if ((_pollfds[i].revents & POLLHUP) == POLLHUP)
+                _clients.find(_pollfds[i].fd)->second->disconnect("Client disconnected due to HUP event");
+
             if ((_pollfds[i].revents & POLLIN) == POLLIN)
             {
                 char buffer[1024];
@@ -293,4 +330,8 @@ std::string     Server::get_hostname(void) {
 
 std::string     Server::get_oper_password(void) {
     return _oper_password;
+}
+
+std::vector<Channel *>  Server::list_channels(void) {
+    return _channels;
 }
