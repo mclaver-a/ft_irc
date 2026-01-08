@@ -12,13 +12,13 @@ void Kick::invoke(Client *client, Message *message)
 {
     if (client->is_authenticated() && client->is_registered())
     {
-        if (message->get_params().size() < 2)
+        if (message->get_params().size() < 3)
         {
-            client->reply(ERR_NEEDMOREPARAMS, ":Not enough parameters for INVITE command!");
+            client->reply(ERR_NEEDMOREPARAMS, ":Not enough parameters for KICK command! Usage: /kick <nickname> #<channel name>");
             return ;
         }
 
-        Channel *channel = _server->get_channel(message->get_params()[1]);
+        Channel *channel = _server->get_channel(message->get_params()[2]);
         if (!channel)
         {
             client->reply(ERR_NOSUCHCHANNEL, ":That channel doesn't exist!");
@@ -37,7 +37,7 @@ void Kick::invoke(Client *client, Message *message)
             return ;
         }
 
-        Client *target = _server->get_client(message->get_params()[0]);
+        Client *target = _server->get_client(message->get_params()[1]);
 
         if (target == NULL)
         {
@@ -45,12 +45,7 @@ void Kick::invoke(Client *client, Message *message)
             return ;
         }
 
-        std::string reason;
-        if (message->get_params().size() > 2)
-            reason = message->get_params()[2];
-        else
-            reason = "Kicked";
-        channel->kick(client, target, reason);
+        channel->kick(client, target, "Kicked by OP");
     }
     else
         client->reply(ERR_NOTREGISTERED, ":You are not registered!");
