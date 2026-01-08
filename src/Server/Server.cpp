@@ -42,6 +42,8 @@ Server::Server(std::string port, std::string password)
     _commands["QUIT"] = new Quit(this);
     _commands["INVITE"] = new Invite(this);
     _commands["KICK"] = new Kick(this);
+    _commands["TOPIC"] = new Topic(this);
+
 
 
     return ;

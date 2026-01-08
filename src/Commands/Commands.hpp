@@ -44,7 +44,6 @@ public:
     Pass(Server *server);
     ~Pass(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };
 
@@ -53,7 +52,6 @@ public:
     User(Server *server);
     ~User(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };
 
@@ -62,7 +60,6 @@ public:
     Nick(Server *server);
     ~Nick(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };
 
@@ -71,7 +68,6 @@ public:
     Cap(Server *server);
     ~Cap(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };
 
@@ -80,7 +76,14 @@ public:
     Join(Server *server);
     ~Join(void);
 
-    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Topic : public Command {
+public:
+    Topic(Server *server);
+    ~Topic(void);
+
     void    invoke(Client *client, Message *message);
 };
 
@@ -89,7 +92,6 @@ public:
     Oper(Server *server);
     ~Oper(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };
 
@@ -98,7 +100,6 @@ public:
     UnOper(Server *server);
     ~UnOper(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };
 
@@ -107,7 +108,6 @@ public:
     Mode(Server *server);
     ~Mode(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };
 
@@ -116,7 +116,6 @@ public:
     Quit(Server *server);
     ~Quit(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };
 
@@ -125,7 +124,6 @@ public:
     Who(Server *server);
     ~Who(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };
 
@@ -134,7 +132,6 @@ public:
     List(Server *server);
     ~List(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };
 
@@ -143,7 +140,6 @@ public:
     Invite(Server *server);
     ~Invite(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };
 
@@ -152,6 +148,5 @@ public:
     Kick(Server *server);
     ~Kick(void);
 
-    // Member functions
     void    invoke(Client *client, Message *message);
 };

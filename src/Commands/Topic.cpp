@@ -1,6 +1,6 @@
 #include "Commands.hpp"
 
-Topic::Topic(Server *server) : Command("QUIT", server) {
+Topic::Topic(Server *server) : Command("TOPIC", server) {
     return ;
 }
 
