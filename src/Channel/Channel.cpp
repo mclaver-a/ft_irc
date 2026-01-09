@@ -51,7 +51,6 @@ Channel &Channel::operator=(const Channel &other) {
     return *this;
 }
 
-//add join, quit, topic, etc...
 void    Channel::join(Client *client) {
     std::vector<Client *>::iterator it_op = std::find(this->_invited_clients.begin(), this->_invited_clients.end(), client);
     if (it_op != _invited_clients.end())
@@ -59,14 +58,18 @@ void    Channel::join(Client *client) {
 
     this->_clients.push_back(client);
     this->broadcast(client, "JOIN", this->get_name(), "");
-    return ;
 }
 
 void    Channel::quit(Client *client, std::string message) {
     this->remove_chanop(client);
     this->broadcast(client, "QUIT", this->get_name(), message);
     this->leave(client);
-    return ;
+}
+
+void    Channel::part(Client *client, std::string message) {
+    this->remove_chanop(client);
+    this->broadcast(client, "PART", this->get_name(), message);
+    this->leave(client);
 }
 
 void    Channel::topic(Client *client, std::vector<std::string> params) {
