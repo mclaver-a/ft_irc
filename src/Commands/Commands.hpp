@@ -47,6 +47,14 @@ public:
     void    invoke(Client *client, Message *message);
 };
 
+class Privmsg : public Command {
+public:
+    Privmsg(Server *server);
+    ~Privmsg(void);
+
+    void    invoke(Client *client, Message *message);
+};
+
 class Part : public Command {
 public:
     Part(Server *server);

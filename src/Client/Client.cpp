@@ -74,9 +74,9 @@ void        Client::broadcast(Client *sender, std::string command, std::string t
 
     // Format ":<sender> <command> <target> :<message>\r\n"
     std::string reply = sender_str + command_str + target_str + message_str + "\r\n";
+    std::cout << reply << std::endl;
 
     send(_socket, reply.c_str(), reply.length(), 0);
-    return ;
 }
 
 void        Client::reply(std::string code, std::string message)

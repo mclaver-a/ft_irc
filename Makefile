@@ -21,7 +21,7 @@ VPATH		= $(SRC_DIR) \
 SRC			= main.cpp Server.cpp utils.cpp Client.cpp Message.cpp \
 			User.cpp Pass.cpp Commands.cpp Cap.cpp Nick.cpp Channel.cpp \
 			Join.cpp Oper.cpp Who.cpp Mode.cpp List.cpp Unoper.cpp \
-			Quit.cpp Invite.cpp Kick.cpp Topic.cpp Part.cpp
+			Quit.cpp Invite.cpp Kick.cpp Topic.cpp Part.cpp Privmsg.cpp
 
 OBJ			= $(addprefix $(OBJ_DIR), $(notdir $(SRC:.cpp=.o)))
 
