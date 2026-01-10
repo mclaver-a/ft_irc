@@ -1,22 +1,22 @@
-
 #include "Commands.hpp"
 
-List::List(Server *server) : Command("LIST", server) {
-    return ;
-}
+List::List(Server *server) : Command("LIST", server) { }
 
-List::~List(void) {
-    return ;
-}
+List::~List(void) { }
 
-void    List::invoke(Client *client, Message *message) {
-    if (client->is_authenticated() && client->is_registered()) {
+void    List::invoke(Client *client, Message *message)
+{
+    if (client->is_authenticated() && client->is_registered())
+    {
         (void)message;
         client->reply(RPL_LISTSTART, ":Channel Users Topic");
         std::vector<Channel *> channels = _server->list_channels();
-        if (channels.size() != 0) {
+
+        if (channels.size() != 0)
+        {
             std::string list_content;
-            for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); it++) {
+            for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); it++)
+            {
                 std::string channel_name = (*it)->get_name();
                 std::stringstream user_count;
                 user_count << (*it)->get_clients().size();
@@ -26,8 +26,7 @@ void    List::invoke(Client *client, Message *message) {
             }
         }
         client->reply(RPL_LISTEND, ":End of /LIST");
-    } else {
-        client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
-    return ;
+    else
+        client->reply(ERR_NOTREGISTERED, ":You have not registered");
 }

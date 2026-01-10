@@ -1,12 +1,8 @@
 #include "Commands.hpp"
 
-Part::Part(Server *server) : Command("PART", server) {
-    return ;
-}
+Part::Part(Server *server) : Command("PART", server) { }
 
-Part::~Part(void) {
-    return ;
-}
+Part::~Part(void) { }
 
 void Part::invoke(Client *client, Message *message)
 {

@@ -1,21 +1,16 @@
 #include "Commands.hpp"
 
-/******************************************************************************/
-/*                      Constructors and Destructor                           */
-/******************************************************************************/
+Mode::Mode(Server *server) : Command("MODE", server) { }
 
-Mode::Mode(Server *server) : Command("MODE", server) {
-    return ;
-}
+Mode::~Mode(void) { }
 
-Mode::~Mode(void) {
-    return ;
-}
-
-void Mode::invoke(Client *client, Message *message) {
-    if (client->is_authenticated() && client->is_registered()) {
+void Mode::invoke(Client *client, Message *message)
+{
+    if (client->is_authenticated() && client->is_registered())
+    {
         // Check if message has enough parameters
-        if (message->get_params().size() < 1) {
+        if (message->get_params().size() < 1)
+        {
             client->reply(ERR_NEEDMOREPARAMS, ":Not enough parameters for MODE command");
             return ;
         }
@@ -24,31 +19,31 @@ void Mode::invoke(Client *client, Message *message) {
 
         // Check if channel exists
         Channel *channel = _server->get_channel(channel_name);
-        if (channel == NULL) {
+        if (channel == NULL)
+        {
             client->reply(ERR_NOSUCHCHANNEL, ":No channel " + channel_name);
             return ;
         }
 
-        // Check if client is on channel
-        if (!channel->has_client(client)) {
+        if (!channel->has_client(client))
+        {
             client->reply(ERR_NOTONCHANNEL, ":You're not on channel " + channel_name);
             return ;
         }
 
         // Check if command was invoked only for listing the channel's modes
-        if (message->get_params().size() == 1) {
+        if (message->get_params().size() == 1)
+        {
             client->reply(RPL_CHANNELMODEIS, channel->get_name() + " " + channel->get_modes());
             return ;
         }
 
-        // Check if the client has the necessary permissions to change the mode (Oper or ChanOp)
-        if (!client->is_oper() && !channel->is_chanop(client->get_nickname())) {
-            // Send an error message to the client
+        if (!client->is_oper() && !channel->is_chanop(client->get_nickname()))
+        {
             client->reply(ERR_NOPRIVILEGES, channel->get_name() + " " + ":Permission Denied");
             return ;
         }
 
-        // Check if flag only has 2 characters
         std::string mode_flag = message->get_params()[1];
         if (mode_flag.length() != 2) {
             client->reply(ERR_UNKNOWNMODE, channel->get_name() + " " + ":Unknown mode char");
@@ -59,15 +54,13 @@ void Mode::invoke(Client *client, Message *message) {
         char mode = mode_flag[0];
         char flag = mode_flag[1];
 
-        // Set or unset the mode
         if (mode == '-')
             channel->unset_mode(flag, message->get_params(), client, channel->get_name());
         else if (mode == '+')
             channel->set_mode(flag, message->get_params(), client, channel->get_name());
         else
             client->reply(ERR_UNKNOWNMODE, channel->get_name() + " " + ":Unknown mode char");
-    } else {
-        client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
-    return ;
+    else
+        client->reply(ERR_NOTREGISTERED, ":You have not registered");
 }

@@ -1,40 +1,38 @@
 #include "Commands.hpp"
 
-Who::Who(Server *server) : Command("WHO", server) {
-    return ;
-}
+Who::Who(Server *server) : Command("WHO", server) { }
 
-Who::~Who(void) {
-    return ;
-}
+Who::~Who(void) { }
 
-void    Who::invoke(Client *client, Message *message) {
-    if (client->is_authenticated() && client->is_registered()) {
-        if (message->get_params().size() < 1) {
-            client->reply(ERR_NEEDMOREPARAMS, ":Not enough parameters for WHO command");
+void    Who::invoke(Client *client, Message *message)
+{
+    if (client->is_authenticated() && client->is_registered())
+    {
+        if (message->get_params().size() < 1)
+        {
+            client->reply(ERR_NEEDMOREPARAMS, ":Missing parameters! Usage: /who <channel_name>");
             return;
         }
 
-        // Get channel by name
         std::string channel_name = message->get_params()[0];
         Channel *channel = _server->get_channel(channel_name);
-        if (channel == NULL) {
+        if (channel == NULL)
+        {
             client->reply(ERR_NOSUCHCHANNEL, ":No channel " + channel_name);
             return ;
         }
 
-        // Check if client is on the channel
-        if (!channel->has_client(client)) {
+        if (!channel->has_client(client))
+        {
             client->reply(ERR_NOTONCHANNEL, ":You're not on channel " + channel_name);
             return ;
         }
 
-
         std::string flag = message->get_params().size() > 1 ? message->get_params()[1] : "";
 
-        // Check if mask is valid
-        if (flag != "" && flag != "o") {
-            client->reply(ERR_UNKNOWNMODE, ":Flag '" + flag + "' is unknown mode char");
+        if (flag != "" && flag != "o")
+        {
+            client->reply(ERR_UNKNOWNMODE, ":Flag '" + flag + "' is unknown");
             return ;
         }
 
@@ -46,15 +44,15 @@ void    Who::invoke(Client *client, Message *message) {
         else
             clients = channel->get_chanop_clients();
 
-        // Loop through clients reply with WHO information
         std::vector<Client *>::iterator it;
-        for (it = clients.begin(); it != clients.end(); it++) {
+        for (it = clients.begin(); it != clients.end(); it++)
+        {
             std::string info = channel->get_client_info(*it, channel);
             client->reply(RPL_WHOREPLY, channel->get_name() + " " + info);
         }
         client->reply(RPL_ENDOFWHO, channel->get_name() + " :End of /WHO list");
-    } else {
-        client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
+    else
+        client->reply(ERR_NOTREGISTERED, ":You have not registered");
     return ;
 }

@@ -1,25 +1,8 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   User.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mclaver- <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/25 19:04:32 by mclaver-          #+#    #+#             */
-/*   Updated: 2025/11/25 19:04:34 by mclaver-         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Commands.hpp"
-#include <ostream>
 
-User::User(Server *server) : Command("USER", server) {
-    return ;
-}
+User::User(Server *server) : Command("USER", server) { }
 
-User::~User(void) {
-    return ;
-}
+User::~User(void) { }
 
 void User::invoke(Client *client, Message *message)
 {
@@ -35,14 +18,16 @@ void User::invoke(Client *client, Message *message)
 
     if (message->get_params().size() < 4)
     {
-        client->reply(ERR_NEEDMOREPARAMS, ":Not enough parameters on USER command");
+        client->reply(ERR_NEEDMOREPARAMS, ":Missing parameters! Usage: /user <username> <> <> <realname");
         return ;
     }
 
     // Check if username is composed of valid characters (alpha-numeric, underscore, dash and dot only)
     username = message->get_params()[0];
-    for (size_t i = 0; i < username.length(); i++) {
-        if(!std::isalnum(username[i]) && username[i] != '_' && username[i] != '-' && username[i] != '.') {
+    for (size_t i = 0; i < username.length(); i++)
+    {
+        if(!std::isalnum(username[i]) && username[i] != '_' && username[i] != '-' && username[i] != '.')
+        {
             client->reply(ERR_ERRONEUSUSERNAME, ":Invalid username. Use only alpha-numeric characters, underscore, dash and dot.");
             return ;
         }
@@ -50,8 +35,10 @@ void User::invoke(Client *client, Message *message)
 
     // Check if realname is composed of valid characters (any printable character - including spaces - is allowed)
     realname = message->get_params()[3];
-    for (size_t i = 0; i < realname.length(); i++) {
-        if(!std::isprint(realname[i])) {
+    for (size_t i = 0; i < realname.length(); i++)
+    {
+        if(!std::isprint(realname[i]))
+        {
             client->reply(ERR_ERRONEUSREALNAME, ":Invalid realname. Use only printable characters.");
             return ;
         }

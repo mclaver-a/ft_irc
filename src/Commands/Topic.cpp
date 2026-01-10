@@ -1,12 +1,8 @@
 #include "Commands.hpp"
 
-Topic::Topic(Server *server) : Command("TOPIC", server) {
-    return ;
-}
+Topic::Topic(Server *server) : Command("TOPIC", server) { }
 
-Topic::~Topic(void) {
-    return ;
-}
+Topic::~Topic(void) { }
 
 void    Topic::invoke(Client *client, Message *message)
 {

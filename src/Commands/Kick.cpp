@@ -1,12 +1,8 @@
 #include "Commands.hpp"
 
-Kick::Kick(Server *server) : Command("KICK", server) {
-    return ;
-}
+Kick::Kick(Server *server) : Command("KICK", server) { }
 
-Kick::~Kick(void) {
-    return ;
-}
+Kick::~Kick(void) { }
 
 void Kick::invoke(Client *client, Message *message)
 {
@@ -14,7 +10,7 @@ void Kick::invoke(Client *client, Message *message)
     {
         if (message->get_params().size() < 3)
         {
-            client->reply(ERR_NEEDMOREPARAMS, ":Not enough parameters for KICK command! Usage: /kick <nickname> #<channel name>");
+            client->reply(ERR_NEEDMOREPARAMS, ":Missing parameters! Usage: /kick <nickname> #<channel name>");
             return ;
         }
 

@@ -1,12 +1,8 @@
 #include "Commands.hpp"
 
-Invite::Invite(Server *server) : Command("INVITE", server) {
-    return ;
-}
+Invite::Invite(Server *server) : Command("INVITE", server) { }
 
-Invite::~Invite(void) {
-    return ;
-}
+Invite::~Invite(void) { }
 
 void Invite::invoke(Client *client, Message *message)
 {
@@ -14,7 +10,7 @@ void Invite::invoke(Client *client, Message *message)
     {
         if (message->get_params().size() < 2)
         {
-            client->reply(ERR_NEEDMOREPARAMS, ":Not enough parameters for INVITE command!");
+            client->reply(ERR_NEEDMOREPARAMS, ":Missing parameters! Usage: /invite <nickname> <channel_name>");
             return ;
         }
 
@@ -49,7 +45,6 @@ void Invite::invoke(Client *client, Message *message)
         client->reply(RPL_INVITING, target->get_nickname() + " " + channel->get_name());
         target->broadcast(client, "INVITE", target->get_nickname(), channel->get_name());
     }
-    else {
+    else
         client->reply(ERR_NOTREGISTERED, ":You are not registered!");
-    }
 }

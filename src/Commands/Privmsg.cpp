@@ -1,21 +1,18 @@
 #include "Commands.hpp"
 
-Privmsg::Privmsg(Server *server) : Command("PRIVMSG", server) {
-    return ;
-}
+Privmsg::Privmsg(Server *server) : Command("PRIVMSG", server) { }
 
-Privmsg::~Privmsg(void) {
-    return ;
-}
+Privmsg::~Privmsg(void) { }
 
 void    Privmsg::invoke(Client *client, Message *message)
 {
     std::string target_name;
     std::string message_text;
 
-    if (client->is_authenticated() && client->is_registered()) {
-
-        if (message->get_params().size() < 2) {
+    if (client->is_authenticated() && client->is_registered())
+    {
+        if (message->get_params().size() < 2)
+        {
             client->reply(ERR_NEEDMOREPARAMS, ":Missing parameters for PRIVMSG. Usage: /privmsg <target_name> <message_text> ");
             return ;
         }
@@ -26,14 +23,16 @@ void    Privmsg::invoke(Client *client, Message *message)
         Channel *channel = _server->get_channel(target_name);
         Client  *target = _server->get_client(target_name);
 
-        if (!channel && !target) {
+        if (!channel && !target)
+        {
             client->reply(ERR_NOSUCHNICK, ":No such nick/channel");
             return ;
         }
 
         if (channel) //target is a channel
         {
-            if (!channel->has_client(client)) {
+            if (!channel->has_client(client))
+            {
                 client->reply(ERR_NOTONCHANNEL, ":You're not on channel " + target_name);
                 return ;
             }
