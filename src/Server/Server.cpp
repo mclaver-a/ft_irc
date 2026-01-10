@@ -28,7 +28,6 @@ Server::Server(std::string port, std::string password)
     _oper_password("chungus"),
     _info("IRC server by dmarijan and mclaver-...fuggetaboutit")
 {
-
     _commands["USER"] = new User(this);
     _commands["PASS"] = new Pass(this);
     _commands["CAP"] = new Cap(this);
@@ -45,37 +44,37 @@ Server::Server(std::string port, std::string password)
     _commands["TOPIC"] = new Topic(this);
     _commands["PART"] = new Part(this);
     _commands["PRIVMSG"] = new Privmsg(this);
-
 }
 
-Server::Server(const Server &other) {
+Server::Server(const Server &other)
+{
     *this = other;
-    return ;
 }
 
-Server::~Server(void) {
+Server::~Server(void)
+{
     // Close the server socket
-    if (_socket != -1) {
+    if (_socket != -1)
         close(_socket);
-    }
+
     // Close all client sockets
-    for (size_t i = 2; i < _pollfds.size(); i++) {
+    for (size_t i = 2; i < _pollfds.size(); i++)
+    {
         if (_pollfds[i].fd != -1)
             close(_pollfds[i].fd);
     }
 
     // TODO Delete all clients from the map
-    for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
+    for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
             delete it->second;
-    }
     // TODO Delete all channels from the vector
 
     // TODO Delete commands
 
-    return ;
 }
 
-Server                  &Server::operator=(const Server &other) {
+Server                  &Server::operator=(const Server &other)
+{
     this->_running = other._running;
     this->_socket = other._socket;
     this->_port = other._port;
@@ -98,10 +97,7 @@ void Server::on_client_connect(void)
 
     if (client_fd == -1)
         throw std::runtime_error("Error: can't accept client connection: " + std::string(strerror(errno)));
-
     addPollfd(_pollfds, client_fd, POLLIN | POLLHUP);
-
-    //TODO init client object
     char hostname[NI_MAXHOST];
     int result = getnameinfo((struct sockaddr *)&client_address, client_address_size, hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV);
     if (result != 0)
@@ -113,7 +109,8 @@ void Server::on_client_connect(void)
     std::cout << client->get_hostname() << ":" << client->get_port() << " has connected" << std::endl;
 }
 
-void Server::on_client_disconnect(int client_fd) {
+void Server::on_client_disconnect(int client_fd)
+{
     // Remove the client from the map
     std::map<int, Client *>::iterator it = _clients.find(client_fd);
     if (it != _clients.end()) {
@@ -121,14 +118,15 @@ void Server::on_client_disconnect(int client_fd) {
         delete it->second;
         _clients.erase(it);
     }
+
     // Remove the client from the vector
-    for (size_t i = 0; i < _pollfds.size(); i++) {
+    for (size_t i = 0; i < _pollfds.size(); i++)
+    {
         if (_pollfds[i].fd == client_fd) {
             _pollfds.erase(_pollfds.begin() + i);
             break;
         }
     }
-    return ;
 }
 
 void Server::client_message(int i, std::string message)
@@ -138,24 +136,24 @@ void Server::client_message(int i, std::string message)
     std::istringstream iss(message);
     std::string line;
 
-
     client = get_client(client_fd);
+
     //parse from line to line, from the input string stream to the temp line variable
     while (std::getline(iss, line))
     {
         if (client->is_disconnected())
             break ;
-
         if (line.length() == 0)
             continue ;
 
         // save the line in a buffer if it does not end in \r
-        if (line.length() > 0 && line[line.length() - 1] != '\r') {
-                    client->set_buffer(line);
-                    continue ;
-                }
-
-        try {
+        if (line.length() > 0 && line[line.length() - 1] != '\r')
+        {
+            client->set_buffer(line);
+            continue ;
+        }
+        try
+        {
             if (client->get_buffer().length() > 0)
             {
                 line = client->get_buffer() + line;
@@ -163,6 +161,7 @@ void Server::client_message(int i, std::string message)
             }
 
             Message *msg;
+
             msg = new Message(line);
             std::string cmd = msg->get_command();
             std::cout << cmd << " was called " << std::endl;
@@ -173,7 +172,6 @@ void Server::client_message(int i, std::string message)
             else
                 _commands[cmd]->invoke(client, msg);
             delete msg;
-
         } catch(std::exception &e) {
             std::cerr << e.what() << std::endl;
         }
@@ -184,9 +182,8 @@ void Server::client_message(int i, std::string message)
 Client  *Server::get_client(int client_fd)
 {
     std::map<int, Client *>::iterator it = _clients.find(client_fd);
-    if (it == _clients.end()) {
+    if (it == _clients.end())
         throw std::runtime_error("Client not found");
-    }
     return it->second;
 }
 
@@ -220,7 +217,6 @@ void Server::event_loop(void)
 
     addPollfd(_pollfds, _socket, POLLIN);
     addPollfd(_pollfds, STDIN_FILENO, POLLIN);
-
     while (_running)
     {
         int npolls = poll(_pollfds.data(), _pollfds.size(), 0);
@@ -259,14 +255,15 @@ void Server::event_loop(void)
         //this loops through the pollfds for all the possible clients
         for (int i = 2; i < (int)_pollfds.size(); i++)
         {
-            if (_clients.find(_pollfds[i].fd)->second->is_disconnected()) {
+            if (_clients.find(_pollfds[i].fd)->second->is_disconnected())
+            {
                 on_client_disconnect(_pollfds[i].fd);
                 continue ;
             }
+
             // If the client received a HUP event, disconnect it
             if ((_pollfds[i].revents & POLLHUP) == POLLHUP)
                 _clients.find(_pollfds[i].fd)->second->disconnect("Client disconnected due to HUP event");
-
             if ((_pollfds[i].revents & POLLIN) == POLLIN)
             {
                 char buffer[1024];
@@ -274,7 +271,6 @@ void Server::event_loop(void)
 
                 if (bread == -1)
                     throw std::runtime_error("Error: when receiving data from client: " + std::string(buffer, bread));
-
                 client_message(i, std::string(buffer, bread));
             }
         }
@@ -290,17 +286,17 @@ void Server::open_general_socket(std::string port)
         throw std::runtime_error("Error: creating server socket");
 
     int enable = 1;
+
     if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) == -1)
         throw std::runtime_error("Error: changing server options");
-
     if (fcntl(_socket, F_SETFL, O_NONBLOCK) == -1)
         throw std::runtime_error("Error: changing server socket to nonblock");
 
     struct sockaddr_in srv_addr = {};
+
     srv_addr.sin_family = AF_INET;
     srv_addr.sin_port = htons(std::atoi(port.c_str()));
     srv_addr.sin_addr.s_addr = INADDR_ANY;
-
     if (bind(_socket, (struct sockaddr *)&srv_addr, sizeof(srv_addr)) == -1)
         throw std::runtime_error("Error: binding server socket to port");
 
@@ -308,14 +304,15 @@ void Server::open_general_socket(std::string port)
         throw std::runtime_error("Error: reading from server socket");
 }
 
-void                    Server::add_channel(Channel *channel) {
+void                    Server::add_channel(Channel *channel)
+{
     _channels.push_back(channel);
     return ;
 }
 
 //getters setters
-
-Channel                 *Server::get_channel(std::string name) {
+Channel                 *Server::get_channel(std::string name)
+{
     // if name doesn't end in ":hostname", append ":hostname"
     if (name.find(":") == std::string::npos)
         name += ":" + _hostname;
@@ -325,14 +322,17 @@ Channel                 *Server::get_channel(std::string name) {
     return NULL;
 }
 
-std::string     Server::get_hostname(void) {
+std::string     Server::get_hostname(void)
+{
     return _hostname;
 }
 
-std::string     Server::get_oper_password(void) {
+std::string     Server::get_oper_password(void)
+{
     return _oper_password;
 }
 
-std::vector<Channel *>  Server::list_channels(void) {
+std::vector<Channel *>  Server::list_channels(void)
+{
     return _channels;
 }
