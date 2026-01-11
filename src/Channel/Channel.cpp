@@ -22,19 +22,14 @@ Channel::Channel(std::string name, std::string hostname)
     _topic_restriction(true),
     _invite_only(false),
     _has_key(false),
-    _has_user_limit(false) {
-}
+    _has_user_limit(false) { }
 
-Channel::Channel(const Channel &other) {
-    *this = other;
-}
+Channel::Channel(const Channel &other) { *this = other; }
 
-Channel::~Channel(void) {
-    // TODO
-    this->_clients.clear();
-}
+Channel::~Channel(void) { this->_clients.clear(); }
 
-Channel &Channel::operator=(const Channel &other) {
+Channel &Channel::operator=(const Channel &other)
+{
     this->_name = other._name;
     this->_hostname = other._hostname;
     this->_topic = other._topic;
@@ -51,7 +46,8 @@ Channel &Channel::operator=(const Channel &other) {
     return *this;
 }
 
-void    Channel::join(Client *client) {
+void    Channel::join(Client *client)
+{
     std::vector<Client *>::iterator it_op = std::find(this->_invited_clients.begin(), this->_invited_clients.end(), client);
     if (it_op != _invited_clients.end())
         _invited_clients.erase(it_op);
@@ -60,19 +56,22 @@ void    Channel::join(Client *client) {
     this->broadcast(client, "JOIN", this->get_name(), "");
 }
 
-void    Channel::quit(Client *client, std::string message) {
+void    Channel::quit(Client *client, std::string message)
+{
     this->remove_chanop(client);
     this->broadcast(client, "QUIT", this->get_name(), message);
     this->leave(client);
 }
 
-void    Channel::part(Client *client, std::string message) {
+void    Channel::part(Client *client, std::string message)
+{
     this->remove_chanop(client);
     this->broadcast(client, "PART", this->get_name(), message);
     this->leave(client);
 }
 
-void    Channel::topic(Client *client, std::vector<std::string> params) {
+void    Channel::topic(Client *client, std::vector<std::string> params)
+{
     // Get channel topic
     if (params.size() == 1) {
         if (this->get_topic().empty()) {
@@ -89,13 +88,15 @@ void    Channel::topic(Client *client, std::vector<std::string> params) {
     }
 }
 
-void    Channel::invite(Client *client) {
+void    Channel::invite(Client *client)
+{
     //make sure client isnt already present in the channel
     if (get_client_names().find(client->get_nickname()) == (size_t)-1)
         _invited_clients.push_back(client);
 }
 
-void    Channel::kick(Client *client, Client *target, std::string reason) {
+void    Channel::kick(Client *client, Client *target, std::string reason)
+{
 
     if (client != target && !is_chanop(client->get_nickname())) {
         client->reply(ERR_CHANOPRIVSNEEDED, this->get_name() + " :You're not channel operator");
@@ -106,16 +107,19 @@ void    Channel::kick(Client *client, Client *target, std::string reason) {
     this->leave(target);
 }
 
-void    Channel::names(Client *client) {
+void    Channel::names(Client *client)
+{
     client->reply(RPL_NAMREPLY, "= " + this->get_name() + " :" + this->get_client_names());
     client->reply(RPL_ENDOFNAMES, this->get_name() + " :End of /NAMES list");
 }
 
-void    Channel::mode(Client *client, std::string message) {
+void    Channel::mode(Client *client, std::string message)
+{
     this->broadcast(client, "MODE", this->get_name(), message);
 }
 
-void    Channel::leave(Client *client) {
+void    Channel::leave(Client *client)
+{
     // Remove client from channel operators
     std::vector<Client *>::iterator it_op = std::find(_op_clients.begin(), _op_clients.end(), client);
     if (it_op != _op_clients.end())
@@ -129,7 +133,8 @@ void    Channel::leave(Client *client) {
     }
 }
 
-void    Channel::broadcast(Client *sender, std::string command, std::string target, std::string message) {
+void    Channel::broadcast(Client *sender, std::string command, std::string target, std::string message)
+{
     if (target.empty())
         target = this->get_name();
     for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
@@ -139,7 +144,8 @@ void    Channel::broadcast(Client *sender, std::string command, std::string targ
     }
 }
 
-void     Channel::set_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name) {
+void     Channel::set_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name)
+{
 
     std::string message = "";
     Client      *target;
@@ -214,7 +220,8 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
     this->mode(client, message);
 }
 
-void     Channel::unset_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name) {
+void     Channel::unset_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name)
+{
     std::string message = "";
     Client      *target;
     std::string target_name;
@@ -269,17 +276,20 @@ void     Channel::unset_mode(char mode, std::vector<std::string> params, Client 
 
 //operator management
 
-void    Channel::add_chanop(Client *client) {
+void    Channel::add_chanop(Client *client)
+{
     this->_op_clients.push_back(client);
 }
 
-void    Channel::remove_chanop(Client *client) {
+void    Channel::remove_chanop(Client *client)
+{
     std::vector<Client *>::iterator it = std::find(this->_op_clients.begin(), this->_op_clients.end(), client);
     if (it != this->_op_clients.end())
         this->_op_clients.erase(it);
 }
 
-bool    Channel::is_chanop(std::string nickname) {
+bool    Channel::is_chanop(std::string nickname)
+{
     for (std::vector<Client *>::iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++)
         if ((*it)->get_nickname() == nickname)
             return true;
@@ -288,19 +298,23 @@ bool    Channel::is_chanop(std::string nickname) {
 
 //useless shit
 
-std::string             Channel::get_name(void) const {
+std::string             Channel::get_name(void) const
+{
     return this->_name + ":" + this->_hostname;
 }
 
-std::string             Channel::get_topic(void) const {
+std::string             Channel::get_topic(void) const
+{
     return this->_topic.empty() ? this->_topic : ":" + this->_topic;
 }
 
-std::string             Channel::get_key(void) const {
+std::string             Channel::get_key(void) const
+{
     return this->_key;
 }
 
-std::string             Channel::get_modes(void) {
+std::string             Channel::get_modes(void)
+{
     std::string modes = "+";
     std::string params = "";
     if (this->_topic_restriction)
@@ -311,13 +325,15 @@ std::string             Channel::get_modes(void) {
         modes += "k";
         params += this->_key;
     }
-    if (this->_op_clients.size() > 0) {
+    if (this->_op_clients.size() > 0)
+    {
         modes += "o";
         if (!params.empty())
             params += " ";
         params += this->get_chanop_names();
     }
-    if (this->has_user_limit()) {
+    if (this->has_user_limit())
+    {
         modes += "l";
         if (!params.empty())
             params += " ";
@@ -336,55 +352,64 @@ std::string             Channel::get_modes(void) {
     return response;
 }
 
-int                     Channel::get_user_limit(void) const {
+int                     Channel::get_user_limit(void) const
+{
     return this->_user_limit;
 }
 
 
-int                     Channel::get_user_quantity(void) const {
+int                     Channel::get_user_quantity(void) const
+{
     return this->_user_quantity;
 }
 
-Client *Channel::get_client(std::string nickname, std::vector<Client *> &clients) {
+Client *Channel::get_client(std::string nickname, std::vector<Client *> &clients)
+{
     for (std::vector<Client*>::const_iterator it = clients.begin(); it != clients.end(); it++)
         if ((*it)->get_nickname() == nickname)
             return *it;
     return NULL;
 }
 
-std::vector<Client *>   Channel::get_clients(void) {
+std::vector<Client *>   Channel::get_clients(void)
+{
     return this->_clients;
 }
 
-std::vector<Client *>   Channel::get_chanop_clients(void) {
+std::vector<Client *>   Channel::get_chanop_clients(void)
+{
     return this->_op_clients;
 }
 
-std::string             Channel::get_client_names(void) {
+std::string             Channel::get_client_names(void)
+{
     std::string names;
-    for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
+    for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+    {
         names += is_chanop((*it)->get_nickname()) ? "@" : "";
         names += (*it)->get_nickname() + " ";
     }
     return names;
 }
 
-std::string             Channel::get_chanop_names(void) {
+std::string             Channel::get_chanop_names(void)
+{
     std::string names;
     for (std::vector<Client *>::const_iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++)
         names += (*it)->get_nickname() + " ";
     return names;
 }
 
-std::string             Channel::get_invited_names(void) {
+std::string             Channel::get_invited_names(void)
+{
     std::string names;
-    for (std::vector<Client *>::const_iterator it = this->_invited_clients.begin(); it != this->_invited_clients.end(); it++) {
+    for (std::vector<Client *>::const_iterator it = this->_invited_clients.begin(); it != this->_invited_clients.end(); it++)
         names += (*it)->get_nickname() + " ";
-    }
     return names;
 }
 
-std::string             Channel::get_client_info(Client *client, Channel *channel) {
+std::string             Channel::get_client_info(Client *client, Channel *channel)
+{
     std::string info = "";
     info += client->get_nickname();
     info += " " + client->get_username();
@@ -398,33 +423,40 @@ std::string             Channel::get_client_info(Client *client, Channel *channe
     return info;
 }
 
-bool                    Channel::get_topic_restriction(void) const {
+bool                    Channel::get_topic_restriction(void) const
+{
     return this->_topic_restriction;
 }
 
-bool                    Channel::get_invite_only(void) const {
+bool                    Channel::get_invite_only(void) const
+{
     return this->_invite_only;
 }
 
-bool    Channel::has_key(void) const {
+bool    Channel::has_key(void) const
+{
     return this->_has_key;
 }
 
-bool    Channel::has_user_limit(void) const {
+bool    Channel::has_user_limit(void) const
+{
     return this->_has_user_limit;
 }
 
-bool    Channel::has_client(Client *client) {
+bool    Channel::has_client(Client *client)
+{
     for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
         if ((*it)->get_nickname() == client->get_nickname())
             return true;
     return false;
 }
 
-void                Channel::set_topic(const std::string topic) {
+void                Channel::set_topic(const std::string topic)
+{
     this->_topic = topic;
 }
 
-void               Channel::increase_user_quantity(void) {
+void               Channel::increase_user_quantity(void)
+{
     this->_user_quantity++;
 }

@@ -25,7 +25,7 @@ Server::Server(std::string port, std::string password)
     _port(port),
     _password(password),
     _hostname("127.0.0.1"),
-    _oper_password("chungus"),
+    _oper_password(g_oper_password),
     _info("IRC server by dmarijan and mclaver-...fuggetaboutit")
 {
     _commands["USER"] = new User(this);
@@ -59,21 +59,23 @@ Server::~Server(void)
 
     // Close all client sockets
     for (size_t i = 2; i < _pollfds.size(); i++)
-    {
         if (_pollfds[i].fd != -1)
             close(_pollfds[i].fd);
-    }
 
-    // TODO Delete all clients from the map
+    // Delete all clients from the map
     for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
             delete it->second;
-    // TODO Delete all channels from the vector
 
-    // TODO Delete commands
+    // Delete all channels from the vector
+    for (size_t i = 0; i < _channels.size(); i++)
+            delete _channels[i];
 
+    // Delete commands
+    for (std::map<std::string, Command *>::iterator it = _commands.begin(); it != _commands.end(); it++)
+            delete it->second;
 }
 
-Server                  &Server::operator=(const Server &other)
+Server  &Server::operator=(const Server &other)
 {
     this->_running = other._running;
     this->_socket = other._socket;
@@ -98,8 +100,10 @@ void Server::on_client_connect(void)
     if (client_fd == -1)
         throw std::runtime_error("Error: can't accept client connection: " + std::string(strerror(errno)));
     addPollfd(_pollfds, client_fd, POLLIN | POLLHUP);
+
     char hostname[NI_MAXHOST];
     int result = getnameinfo((struct sockaddr *)&client_address, client_address_size, hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV);
+
     if (result != 0)
         throw std::runtime_error(std::string(gai_strerror(result)));
 
@@ -159,16 +163,14 @@ void Server::client_message(int i, std::string message)
                 line = client->get_buffer() + line;
                 client->clear_buffer();
             }
-
             Message *msg;
 
             msg = new Message(line);
             std::string cmd = msg->get_command();
             std::cout << cmd << " was called " << std::endl;
 
-            // Check if the command is known
             if (_commands.find(cmd) == _commands.end())
-                client->reply("woaah... im so full.. hhmmph", ":Unknown command " + cmd);
+                client->reply(ERR_UNKNOWNCOMMAND, ":Unknown command " + cmd);
             else
                 _commands[cmd]->invoke(client, msg);
             delete msg;
@@ -251,7 +253,6 @@ void Server::event_loop(void)
                 _running = false;
         }
 
-        //TODO: on disconnect and on HUP event (?)
         //this loops through the pollfds for all the possible clients
         for (int i = 2; i < (int)_pollfds.size(); i++)
         {

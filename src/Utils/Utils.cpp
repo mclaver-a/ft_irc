@@ -1,7 +1,8 @@
-#include "utils.hpp"
+#include "Utils.hpp"
 
 //util function to add fds to the pollfds vector, properly config'd.
-void addPollfd(std::vector<pollfd>& fds, int fd, short events) {
+void addPollfd(std::vector<pollfd>& fds, int fd, short events)
+{
     pollfd p;
     p.fd = fd;
     p.events = events;
@@ -9,7 +10,8 @@ void addPollfd(std::vector<pollfd>& fds, int fd, short events) {
     fds.push_back(p);
 }
 
-std::vector<std::string> split(std::string message) {
+std::vector<std::string> split(std::string message)
+{
     std::vector<std::string> tokens;
     std::string currentToken;
 

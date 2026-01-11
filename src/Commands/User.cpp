@@ -43,7 +43,6 @@ void User::invoke(Client *client, Message *message)
             return ;
         }
     }
-
     client->set_username(username);
     client->set_realname(realname);
     client->register_client();
