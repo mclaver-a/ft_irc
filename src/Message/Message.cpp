@@ -12,26 +12,22 @@
 
 #include "Message.hpp"
 
-Message::Message(std::string message) {
+Message::Message(std::string message)
+{
     try {
         _tokenize(message);
     }
     catch (std::exception &e) {
         throw std::runtime_error("Parse failed: " + std::string(e.what()));
     }
-    return ;
 }
 
-Message::Message(const Message &other) {
-    *this = other;
-    return ;
-}
+Message::Message(const Message &other) { *this = other; }
 
-Message::~Message(void) {
-    return ;
-}
+Message::~Message(void) { }
 
-Message &Message::operator=(const Message &other) {
+Message &Message::operator=(const Message &other)
+{
     this->_prefix = other._prefix;
     this->_command = other._command;
     this->_params = other._params;
@@ -49,36 +45,36 @@ std::vector<std::string> Message::get_params(void) const
 }
 
 
-void    Message::_tokenize(std::string message) {
+void    Message::_tokenize(std::string message)
+{
     std::vector<std::string> split_msg = split(message);
 
-    if (split_msg.size() < 1) {
+    if (split_msg.size() < 1)
         throw std::runtime_error("Message is empty");
-    }
 
     // Check if first token is a prefix and take it out of the vector
-    if (split_msg[0][0] == ':') {
+    if (split_msg[0][0] == ':')
+    {
         _prefix = split_msg[0].substr(1);
         split_msg.erase(split_msg.begin());
     }
 
-    // The next token is the command, and should be stored in all uppercase
+    // Make the command case insensitive :p
     _command = split_msg[0];
-    std::transform(_command.begin(), _command.end(), _command.begin(), ::toupper);
+    std::transform(_command.begin(), _command.end(), _command.begin(), toupper);
 
-    // The rest of the tokens are parameters
-    for (size_t i = 1; i < split_msg.size(); i++) {
-        //if the token starts with a colon, everything after it is a single parameter
-        if (split_msg[i][0] == ':') {
+    // Grab the command arguments
+    for (size_t i = 1; i < split_msg.size(); i++)
+    {
+        // if the token starts with a colon, everything after it is a single parameter
+        if (split_msg[i][0] == ':')
+        {
             std::string param = split_msg[i].substr(1);
-            for (size_t j = i + 1; j < split_msg.size(); j++) {
+            for (size_t j = i + 1; j < split_msg.size(); j++)
                 param += " " + split_msg[j];
-            }
             _params.push_back(param);
             break;
         }
         _params.push_back(split_msg[i]);
     }
-    std::cout << "pepe: " << _command << " and pefpis: " << std::endl;
-    return ;
 }

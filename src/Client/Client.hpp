@@ -30,12 +30,8 @@
 # include <map>
 # include <sstream>
 
-# include "../Utils/utils.hpp"
+# include "../Utils/Utils.hpp"
 # include "../Server/Server.hpp"
-
-// global variable for op
-const std::string   g_oper_password = "chungus";
-
 
 class Channel;
 
@@ -62,26 +58,23 @@ class Client
         std::string             _message_buffer;
 
     public:
-    // Constructors
         Client(std::string server_hostname, int fd, int port, std::string password, const std::string &hostname);
         Client(const Client &other);
-    // Destructor
         ~Client();
-    // Assignment operator
         Client &operator=(const Client &other);
 
-    // Member functions: Client management
+    // Client management
         void        disconnect(std::string message);
         void        authenticate(std::string password);
         void        register_client(void);
         void        oper(std::string oper_password);
         void        unOper(void);
 
-    // Member functions: Message handling
+    // Message handling
         void        reply(std::string code, std::string message);
         void        broadcast(Client *sender, std::string command, std::string target, std::string message);
 
-    // Getters
+    // Getters & Setters
         std::string get_server_hostname(void) const;
         int         get_socket(void) const;
         int         get_port(void) const;
@@ -96,8 +89,6 @@ class Client
         bool        is_oper(void) const;
         bool        has_nickname(void) const;
 
-    // Setters
-        //void        set_nickname(const std::string &nickname);
         void        set_username(const std::string &username);
         void        set_realname(const std::string &realname);
         void        set_nickname(const std::string &nickname);

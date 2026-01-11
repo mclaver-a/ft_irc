@@ -12,7 +12,7 @@
 
 # include "Server.hpp"
 # include "../Commands/Commands.hpp"
-# include "../Utils/utils.hpp"
+# include "../Utils/Utils.hpp"
 #include <exception>
 #include <sstream>
 #include <stdexcept>
