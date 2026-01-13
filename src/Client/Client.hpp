@@ -12,23 +12,6 @@
 
 #pragma once
 
-# include <iostream>
-# include <cstdlib>
-# include <cstring>
-# include <string>
-# include <unistd.h>
-# include <fcntl.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <netdb.h>
-# include <netinet/in.h>
-# include <stdexcept>
-# include <cerrno>
-# include <poll.h>
-# include <algorithm>
-# include <vector>
-# include <map>
-# include <sstream>
 
 # include "../Utils/Utils.hpp"
 # include "../Server/Server.hpp"
@@ -39,7 +22,6 @@ class Client
 {
     private:
 
-    // Attributes
         std::string             _server_hostname;
         int                     _socket;
         int                     _port;

@@ -12,30 +12,32 @@
 
 # pragma once
 
-#include <string>
-#include <unistd.h>
 #include <vector>
-#include <poll.h>
+#include <string>
 #include <iostream>
+#include <map>
+
+#include <exception>
+#include <stdexcept>
+#include <cerrno>
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+#include <algorithm>
+
+#include <unistd.h>
+#include <poll.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <exception>
 #include <fcntl.h>
-#include <cstdlib>
-#include <string>
-#include <stdexcept>
-#include <iostream>
 #include <unistd.h>
-#include <vector>
-#include <cstdio>
-#include <cstring>
-#include <cerrno>
 #include <netdb.h>
 # include "../FlexLexer.h"
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netdb.h>
 
 # include "../Message/Message.hpp"
 # include "../Client/Client.hpp"

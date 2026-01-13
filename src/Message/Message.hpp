@@ -11,14 +11,9 @@
 /* ************************************************************************** */
 
 #pragma once
-# include <map>
-# include <vector>
-# include <string>
-# include <algorithm>
-# include <stdexcept>
-# include <algorithm>
-# include <cctype>
+
 # include "../Utils/Utils.hpp"
+# include "../Server/Server.hpp"
 
 class Message {
 private:
@@ -26,7 +21,7 @@ private:
     std::string                 _command;
     std::vector<std::string>    _params;
 
-    void    _tokenize(std::string message); //parser
+    void    _tokenize(std::string message); // Parser
 public:
     Message(std::string message);
     Message(const Message &other);

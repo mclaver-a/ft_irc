@@ -97,9 +97,8 @@ void    Channel::invite(Client *client)
 
 void    Channel::kick(Client *client, Client *target, std::string reason)
 {
-
     if (client != target && !is_chanop(client->get_nickname())) {
-        client->reply(ERR_CHANOPRIVSNEEDED, this->get_name() + " :You're not channel operator");
+        client->reply(ERR_CHANOPRIVSNEEDED, this->get_name() + " :You're not a channel operator");
         return ;
     }
 
@@ -120,7 +119,7 @@ void    Channel::mode(Client *client, std::string message)
 
 void    Channel::leave(Client *client)
 {
-    // Remove client from channel operators
+    // Remove client from channel OP list
     std::vector<Client *>::iterator it_op = std::find(_op_clients.begin(), _op_clients.end(), client);
     if (it_op != _op_clients.end())
         _op_clients.erase(it_op);
@@ -154,15 +153,15 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
     int         limit;
 
     switch (mode) {
-        case 't':
+        case 't':   // Changing topic restricted to OP
             _topic_restriction = true;
             message = "+t";
             break;
-        case 'i':
+        case 'i':   // Invite required to join channel
             _invite_only = true;
             message = "+i";
             break;
-        case 'o':
+        case 'o':   // Make someone a channel OP
             if (params.size() < 3) {
                 client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
                 break ;
@@ -180,7 +179,7 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
             this->add_chanop(target);
             message = "+o " + target_name;
             break;
-        case 'k':
+        case 'k':   // Password required to join channel
             if (params.size() < 3) {
                 client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Must specify the key");
                 break ;
@@ -189,20 +188,23 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
             _has_key = true;
             message = "+k " + _key;
             break;
-        case 'l':
-            if (params.size() < 3) {
+        case 'l':   // Set a maximum amount of clients in channel
+            if (params.size() < 3)
+            {
                 client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
                 break ;
             }
+
             limit_param = params[2];
-            // Check if limit_param is a number
-            if (limit_param.find_first_not_of("0123456789") != std::string::npos) {
-                client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown mode char");
+            if (limit_param.find_first_not_of("0123456789") != std::string::npos)
+            {
+                client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Wrong character in limit");
                 break ;
             }
-            // Check if limit is greater than 0
+
             limit = std::atoi(limit_param.c_str());
-            if (limit < 1) {
+            if (limit < 1)
+            {
                 client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Limit must be greater than 0");
                 break ;
             }
@@ -211,7 +213,7 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
             message = "+l " + limit_param;
             break;
         default:
-            client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown mode char");
+            client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown character");
             break;
     }
 
@@ -237,20 +239,25 @@ void     Channel::unset_mode(char mode, std::vector<std::string> params, Client 
             message = "-i";
             break;
         case 'o':
-            if (params.size() < 3) {
+            if (params.size() < 3)
+            {
                 client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
                 break ;
             }
+
             target_name = params[2];
             target = get_client(target_name, _clients);
-            if (!this->has_client(target)) {
+            if (!this->has_client(target))
+            {
                 client->reply(ERR_USERNOTINCHANNEL, channel_name + " " + ":User is not on this channel");
                 break ;
             }
-            if (!this->is_chanop(target_name)) {
+            if (!this->is_chanop(target_name))
+            {
                 client->reply(ERR_CHANOPRIVSNEEDED, channel_name + " " + ":User is not channel operator");
                 break ;
             }
+
             this->remove_chanop(target);
             message = "-o " + target_name;
             break;
@@ -265,7 +272,7 @@ void     Channel::unset_mode(char mode, std::vector<std::string> params, Client 
             message = "-l";
             break;
         default:
-            client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown mode char");
+            client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown character");
             break;
     }
 
@@ -274,7 +281,7 @@ void     Channel::unset_mode(char mode, std::vector<std::string> params, Client 
     this->mode(client, message);
 }
 
-//operator management
+// OP management
 
 void    Channel::add_chanop(Client *client)
 {
@@ -296,7 +303,7 @@ bool    Channel::is_chanop(std::string nickname)
     return false;
 }
 
-//useless shit
+// Getters & Setters
 
 std::string             Channel::get_name(void) const
 {
@@ -342,7 +349,7 @@ std::string             Channel::get_modes(void)
         params += ss.str();
     }
 
-    // Concatenate modes and params
+    // Final response string is "+{modes} {params}"
     std::string response;
     if (params.empty())
         response = modes;
@@ -356,7 +363,6 @@ int                     Channel::get_user_limit(void) const
 {
     return this->_user_limit;
 }
-
 
 int                     Channel::get_user_quantity(void) const
 {
@@ -414,11 +420,10 @@ std::string             Channel::get_client_info(Client *client, Channel *channe
     info += client->get_nickname();
     info += " " + client->get_username();
     info += " " + client->get_hostname();
-    info += " " + client->get_hostname();
-    info += " " + client->get_nickname();
-    info += " H";
+    info += " " + client->get_server_hostname();
+    info += " H"; // H means available.
     if (channel->is_chanop(client->get_nickname()))
-        info += "@";
+        info += "@"; // @ means Operator.
     info += " :" + client->get_realname();
     return info;
 }

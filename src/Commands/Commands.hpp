@@ -4,6 +4,8 @@
 # include "../Message/Message.hpp"
 # include "../Client/Client.hpp"
 
+# include <sstream>
+
 class Server;
 
 class Client;

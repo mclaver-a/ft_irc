@@ -96,6 +96,66 @@ void        Client::reply(std::string code, std::string message)
     send(_socket, reply.c_str(), reply.length(), 0);
 }
 
+void        Client::register_client(void)
+{
+    if (!this->has_nickname())
+        reply(ERR_NONICKNAMEGIVEN, ":You must choose a nickname before registering");
+    else if (!this->get_username().empty() && !this->get_realname().empty())
+    {
+        _registered = true;
+        reply(RPL_WELCOME, ":Welcome to the Internet Relay Network " + this->get_nickname() + "!" + this->get_username() + "@" + this->get_hostname());
+    }
+}
+
+void        Client::oper(std::string input)
+{
+    if (input == g_oper_password)
+        _oper = true;
+}
+
+void        Client::unOper(void) { _oper = false; }
+
+void        Client::authenticate(std::string password)
+{
+    if (password == _password)
+        _authenticated = true;
+    return ;
+}
+
+void        Client::disconnect(std::string message)
+{
+    if (!_disconnected)
+    {
+        reply(RPL_QUIT, message);
+        close(_socket);
+        _disconnected = true;
+    }
+}
+
+//debugging functions TODO remove
+
+bool        Client::is_authenticated(void) const
+{
+    if (_authenticated)
+        std::cout << "is authd" << std::endl;
+    else
+        std::cout << "is not authd" << std::endl;
+
+    return _authenticated;
+}
+
+bool        Client::is_registered(void) const
+{
+    if (_registered)
+        std::cout << "is registered" << std::endl;
+    else
+        std::cout << "is notregistered" << std::endl;
+
+    return _registered;
+}
+
+// Getters & Setters
+
 std::string Client::get_server_hostname(void) const { return _server_hostname; }
 
 int         Client::get_socket(void) const { return _socket; }
@@ -127,62 +187,3 @@ void        Client::set_nickname(const std::string &nickname) { _nickname = nick
 void        Client::set_buffer(std::string message) { this->_message_buffer += message; }
 
 void        Client::clear_buffer(void) { this->_message_buffer.clear(); }
-
-void        Client::register_client(void)
-{
-    if (!this->has_nickname())
-        reply(ERR_NONICKNAMEGIVEN, ":You must choose a nickname before registering");
-    else if (!this->get_username().empty() && !this->get_realname().empty())
-    {
-        _registered = true;
-        reply(RPL_WELCOME, ":Welcome to the Internet Relay Network " + this->get_nickname() + "!" + this->get_username() + "@" + this->get_hostname());
-    }
-}
-
-
-void        Client::oper(std::string input)
-{
-    if (input == g_oper_password)
-        _oper = true;
-}
-
-void        Client::unOper(void) { _oper = false; }
-
-void        Client::authenticate(std::string password)
-{
-    if (password == _password)
-        _authenticated = true;
-    return ;
-}
-
-void        Client::disconnect(std::string message)
-{
-    if (!_disconnected)
-    {
-        reply(RPL_QUIT, message);
-        close(_socket);
-        _disconnected = true;
-    }
-}
-
-//debugging functions
-
-bool        Client::is_authenticated(void) const
-{
-    if (_authenticated)
-        std::cout << "is authd" << std::endl;
-    else
-        std::cout << "is not authd" << std::endl;
-
-    return _authenticated;
-}
-
-bool        Client::is_registered(void) const
-{
-    if (_registered)
-        std::cout << "is registered" << std::endl;
-    else
-        std::cout << "is notregistered" << std::endl;
-
-    return _registered;
-}

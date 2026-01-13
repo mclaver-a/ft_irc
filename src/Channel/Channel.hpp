@@ -1,20 +1,12 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Channel.hpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mclaver- <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/15 20:17:11 by mclaver-          #+#    #+#             */
-/*   Updated: 2025/12/15 20:17:21 by mclaver-         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #pragma once
 
 #include "../Client/Client.hpp"
 #include "../Message/Message.hpp"
 #include "../Server/Server.hpp"
+
+#include <algorithm>
+
 
 class Channel {
     private:
