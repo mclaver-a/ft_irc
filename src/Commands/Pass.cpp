@@ -8,7 +8,7 @@ void Pass::invoke(Client *client, Message *message)
 {
     if (client->is_authenticated() == true)
     {
-        client->reply(ERR_ALREADYREGISTRED, "You are already registered to the network!");
+        client->reply(ERR_ALREADYREGISTERED, "You are already registered to the network!");
         return ;
     }
 

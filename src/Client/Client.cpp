@@ -90,8 +90,6 @@ void        Client::reply(std::string code, std::string message)
     std::string reply;
     reply = hostname_str + code_str + nickname_str + message + "\n";
 
-    std::cout << "Reply: " << reply << std::endl;
-
     // Send reply to client
     send(_socket, reply.c_str(), reply.length(), 0);
 }
@@ -126,32 +124,11 @@ void        Client::disconnect(std::string message)
 {
     if (!_disconnected)
     {
-        reply(RPL_QUIT, message);
+        std::string error_msg = "ERROR :Closing Link: " + _hostname + " (" + message + ")\r\n";
+        send(_socket, error_msg.c_str(), error_msg.length(), 0);
         close(_socket);
         _disconnected = true;
     }
-}
-
-//debugging functions TODO remove
-
-bool        Client::is_authenticated(void) const
-{
-    if (_authenticated)
-        std::cout << "is authd" << std::endl;
-    else
-        std::cout << "is not authd" << std::endl;
-
-    return _authenticated;
-}
-
-bool        Client::is_registered(void) const
-{
-    if (_registered)
-        std::cout << "is registered" << std::endl;
-    else
-        std::cout << "is notregistered" << std::endl;
-
-    return _registered;
 }
 
 // Getters & Setters
@@ -187,3 +164,7 @@ void        Client::set_nickname(const std::string &nickname) { _nickname = nick
 void        Client::set_buffer(std::string message) { this->_message_buffer += message; }
 
 void        Client::clear_buffer(void) { this->_message_buffer.clear(); }
+
+bool        Client::is_authenticated(void) const { return _authenticated; }
+
+bool        Client::is_registered(void) const { return _registered; }

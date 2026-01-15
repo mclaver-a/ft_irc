@@ -12,7 +12,7 @@ void User::invoke(Client *client, Message *message)
 
     if (client->is_registered() == true)
     {
-        client->reply(ERR_ALREADYREGISTRED, "You are already registered to the network!");
+        client->reply(ERR_ALREADYREGISTERED, "You are already registered to the network!");
         return ;
     }
 
@@ -28,7 +28,7 @@ void User::invoke(Client *client, Message *message)
     {
         if(!std::isalnum(username[i]) && username[i] != '_' && username[i] != '-' && username[i] != '.')
         {
-            client->reply(ERR_ERRONEUSUSERNAME, ":Invalid username. Use only alpha-numeric characters, underscore, dash and dot.");
+            client->reply(ERR_ERRONEUSNICKNAME, ":Invalid username. Use only alpha-numeric characters, underscore, dash and dot.");
             return ;
         }
     }
@@ -39,7 +39,7 @@ void User::invoke(Client *client, Message *message)
     {
         if(!std::isprint(realname[i]))
         {
-            client->reply(ERR_ERRONEUSREALNAME, ":Invalid realname. Use only printable characters.");
+            client->reply(ERR_UNKNOWNMODE, ":Invalid realname. Use only printable characters.");
             return ;
         }
     }

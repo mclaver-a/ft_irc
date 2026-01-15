@@ -7,5 +7,6 @@ Cap::~Cap(void) { }
 void Cap::invoke(Client *client, Message *message)
 {
     (void)message;
-    client->reply(RPL_CAP, ":Nothing too special about this server :3");
+    std::string cap_response = "Nothing special about this server :) Fuggeraboutit!\n";
+    send(client->get_socket(), cap_response.c_str(), cap_response.length(), 0);
 }

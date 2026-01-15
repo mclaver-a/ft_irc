@@ -5,7 +5,6 @@
 #include "../Message/Message.hpp"
 #include "../Server/Server.hpp"
 
-#include <algorithm>
 
 
 class Channel {

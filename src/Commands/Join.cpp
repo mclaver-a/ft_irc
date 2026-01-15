@@ -38,7 +38,7 @@ void Join::invoke(Client *client, Message *message)
         {
             if (channel->has_client(client))
             {
-                client->reply(ERR_ALREADYONCHANNEL, channel->get_name() + " " + ":You're already on that channel");
+                client->reply(ERR_USERONCHANNEL, channel->get_name() + " " + ":You're already on that channel");
                 return;
             }
             if (channel->get_invite_only() && channel->get_invited_names().find(client->get_nickname()) == std::string::npos)

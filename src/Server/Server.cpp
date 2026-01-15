@@ -167,7 +167,6 @@ void Server::client_message(int i, std::string message)
 
             msg = new Message(line);
             std::string cmd = msg->get_command();
-            std::cout << cmd << " was called " << std::endl;
 
             if (_commands.find(cmd) == _commands.end())
                 client->reply(ERR_UNKNOWNCOMMAND, ":Unknown command " + cmd);
@@ -279,7 +278,6 @@ void Server::event_loop(void)
 }
 
 //will open the general socket and bind it to arg port.
-//TODO: is setting reuse necessary?
 void Server::open_general_socket(std::string port)
 {
     _socket = socket(AF_INET, SOCK_STREAM, 0);
