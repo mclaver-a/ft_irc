@@ -21,4 +21,6 @@ void Pass::invoke(Client *client, Message *message)
     client->authenticate(message->get_params()[0]);
     if (!client->is_authenticated())
         client->disconnect("Disconnected due to missmatched password!");
+    else
+        client->reply(RPL_WELCOME, "You correctly authenticated through PASS!\n");
 }

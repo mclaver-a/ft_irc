@@ -10,7 +10,7 @@ void Invite::invoke(Client *client, Message *message)
     {
         if (message->get_params().size() < 2)
         {
-            client->reply(ERR_NEEDMOREPARAMS, ":Missing parameters! Usage: /invite <nickname> <channel_name>");
+            client->reply(ERR_NEEDMOREPARAMS, ":Missing parameters! Usage: /invite <nickname> #<channel_name>");
             return ;
         }
 

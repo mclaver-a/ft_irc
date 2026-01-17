@@ -71,7 +71,6 @@ void        Client::broadcast(Client *sender, std::string command, std::string t
 
     // Format ":<sender> <command> <target> :<message>\r\n"
     std::string reply = sender_str + command_str + target_str + message_str + "\r\n";
-    std::cout << reply << std::endl;
 
     send(_socket, reply.c_str(), reply.length(), 0);
 }
@@ -90,6 +89,7 @@ void        Client::reply(std::string code, std::string message)
     std::string reply;
     reply = hostname_str + code_str + nickname_str + message + "\n";
 
+
     // Send reply to client
     send(_socket, reply.c_str(), reply.length(), 0);
 }
@@ -102,6 +102,8 @@ void        Client::register_client(void)
     {
         _registered = true;
         reply(RPL_WELCOME, ":Welcome to the Internet Relay Network " + this->get_nickname() + "!" + this->get_username() + "@" + this->get_hostname());
+        if (!_authenticated)
+            reply("", "You still have to authenticate through command PASS <server_password>!\n");
     }
 }
 

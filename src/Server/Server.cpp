@@ -13,9 +13,12 @@
 # include "Server.hpp"
 # include "../Commands/Commands.hpp"
 # include "../Utils/Utils.hpp"
+#include <cerrno>
 #include <exception>
+#include <ostream>
 #include <sstream>
 #include <stdexcept>
+#include <sys/poll.h>
 #include <unistd.h>
 # include "../Client/Client.hpp"
 
@@ -99,7 +102,7 @@ void Server::on_client_connect(void)
 
     if (client_fd == -1)
         throw std::runtime_error("Error: can't accept client connection: " + std::string(strerror(errno)));
-    addPollfd(_pollfds, client_fd, POLLIN | POLLHUP);
+    addPollfd(_pollfds, client_fd, POLLIN | POLLHUP | POLLERR | POLLNVAL);
 
     char hostname[NI_MAXHOST];
     int result = getnameinfo((struct sockaddr *)&client_address, client_address_size, hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV);
@@ -178,6 +181,7 @@ void Server::client_message(int i, std::string message)
         }
     }
 
+
 }
 
 Client  *Server::get_client(int client_fd)
@@ -255,6 +259,7 @@ void Server::event_loop(void)
         //this loops through the pollfds for all the possible clients
         for (int i = 2; i < (int)_pollfds.size(); i++)
         {
+
             if (_clients.find(_pollfds[i].fd)->second->is_disconnected())
             {
                 on_client_disconnect(_pollfds[i].fd);
@@ -269,10 +274,19 @@ void Server::event_loop(void)
                 char buffer[1024];
                 int bread = recv(_pollfds[i].fd, buffer, sizeof(buffer), 0);
 
+                if (bread == 0)
+                {
+                    _clients.find(_pollfds[i].fd)->second->disconnect("Client disconnected due to EOF input message");
+                    continue ;
+                }
                 if (bread == -1)
                     throw std::runtime_error("Error: when receiving data from client: " + std::string(buffer, bread));
                 client_message(i, std::string(buffer, bread));
             }
+            if ((_pollfds[i].revents & POLLERR) == POLLERR)
+                _clients.find(_pollfds[i].fd)->second->disconnect("Client disconnected due to a POLL Error event");
+            if ((_pollfds[i].revents & POLLNVAL) == POLLNVAL)
+                _clients.find(_pollfds[i].fd)->second->disconnect("Client disconnected due to a POLL Invalid FD event");
         }
     }
 }

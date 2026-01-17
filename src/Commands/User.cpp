@@ -18,7 +18,7 @@ void User::invoke(Client *client, Message *message)
 
     if (message->get_params().size() < 4)
     {
-        client->reply(ERR_NEEDMOREPARAMS, ":Missing parameters! Usage: /user <username> <> <> <realname");
+        client->reply(ERR_NEEDMOREPARAMS, ":Missing parameters!");
         return ;
     }
 

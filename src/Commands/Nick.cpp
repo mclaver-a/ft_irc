@@ -9,7 +9,7 @@ void    Nick::invoke(Client *client, Message *message) {
     // Check if message has enough parameters
     if (message->get_params().size() < 1)
     {
-        client->reply("ERR_ERRONEUSNICKNAME", "<empty_nickname>");
+        client->reply(ERR_ERRONEUSNICKNAME, "<empty_nickname>");
         return ;
     }
 
@@ -17,13 +17,13 @@ void    Nick::invoke(Client *client, Message *message) {
 
     if (nickname.empty())
     {
-        client->reply("ERR_NONICKNAMEGIVEN", "<empty_nickname>");
+        client->reply(ERR_NONICKNAMEGIVEN, "<empty_nickname>");
         return ;
     }
 
     if (_server->get_client(nickname))
     {
-        client->reply("ERR_NICKNAMEINUSE", "Your chosen nickname is already in use!");
+        client->reply(ERR_NICKNAMEINUSE, "Your chosen nickname is already in use!");
         return;
     }
 
@@ -31,7 +31,7 @@ void    Nick::invoke(Client *client, Message *message) {
     {
         if(!std::isalnum(nickname[i]) && nickname[i] != '_')
         {
-            client->reply("ERR_ERRONEUSNICKNAME", ":Nickname can only contain letters, numbers and underscores");
+            client->reply(ERR_ERRONEUSNICKNAME, ":Nickname can only contain letters, numbers and underscores");
             return ;
         }
     }
