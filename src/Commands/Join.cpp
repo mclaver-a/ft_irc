@@ -46,7 +46,7 @@ void Join::invoke(Client *client, Message *message)
                 client->reply(ERR_INVITEONLYCHAN, channel->get_name() + " " + ":Cannot join channel (+i)");
                 return;
             }
-            if(channel->has_key() && message->get_params()[1] != channel->get_key())
+            if (channel->has_key() && (message->get_params().size() <= 1 || (message->get_params().size() > 1 && message->get_params()[1] != channel->get_key())))
             {
                 client->reply(ERR_BADCHANNELKEY, channel->get_name() + " " + ":Cannot join channel (+k)");
                 return;
