@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Channel.hpp"
+#include <complex>
 
 Channel::Channel(std::string name, std::string hostname)
     : _name(name),
@@ -143,7 +144,7 @@ void    Channel::broadcast(Client *sender, std::string command, std::string targ
     }
 }
 
-void     Channel::set_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name)
+void     Channel::set_mode(std::string mode, std::vector<std::string> params, Client *client, std::string channel_name)
 {
 
     std::string message = "";
@@ -151,70 +152,78 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
     std::string target_name;
     std::string limit_param;
     int         limit;
+    int         argcount = 0;
 
-    switch (mode) {
-        case 't':   // Changing topic restricted to OP
-            _topic_restriction = true;
-            message = "+t";
-            break;
-        case 'i':   // Invite required to join channel
-            _invite_only = true;
-            message = "+i";
-            break;
-        case 'o':   // Make someone a channel OP
-            if (params.size() < 3) {
-                client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
-                break ;
-            }
-            target_name = params[2];
-            target = get_client(target_name, _clients);
-            if (!this->has_client(target)) {
-                client->reply(ERR_USERNOTINCHANNEL, channel_name + " " + ":User is not on this channel");
-                break ;
-            }
-            if (this->is_chanop(target_name)) {
-                client->reply(ERR_ALREADYOPER, channel_name + " " + ":User is already channel operator");
-                break ;
-            }
-            this->add_chanop(target);
-            message = "+o " + target_name;
-            break;
-        case 'k':   // Password required to join channel
-            if (params.size() < 3) {
-                client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Must specify the key");
-                break ;
-            }
-            _key = params[2];
-            _has_key = true;
-            message = "+k " + _key;
-            break;
-        case 'l':   // Set a maximum amount of clients in channel
-            if (params.size() < 3)
-            {
-                client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
-                break ;
-            }
+    for (int i = 0; i < (int)mode.length(); i++)
+    {
+        switch (mode.c_str()[i])
+        {
+            case 't':   // Changing topic restricted to OP
+                _topic_restriction = true;
+                message = "+t";
+                break;
+            case 'i':   // Invite required to join channel
+                _invite_only = true;
+                message = "+i";
+                break;
+            case 'o':   // Make someone a channel OP
+                if (params.size() < 3) {
+                    client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
+                    break ;
+                }
+                target_name = params[2 + argcount];
+                argcount++;
+                target = get_client(target_name, _clients);
+                if (!this->has_client(target)) {
+                    client->reply(ERR_USERNOTINCHANNEL, channel_name + " " + ":User is not on this channel");
+                    break ;
+                }
+                if (this->is_chanop(target_name)) {
+                    client->reply(ERR_ALREADYOPER, channel_name + " " + ":User is already channel operator");
+                    break ;
+                }
+                this->add_chanop(target);
+                message = "+o " + target_name;
+                break;
+            case 'k':   // Password required to join channel
+                if (params.size() < 3) {
+                    client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Must specify the key");
+                    break ;
+                }
+                _key = params[2 + argcount];
+                argcount++;
+                _has_key = true;
+                message = "+k " + _key;
+                break;
+            case 'l':   // Set a maximum amount of clients in channel
+                if (params.size() < 3)
+                {
+                    client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
+                    break ;
+                }
 
-            limit_param = params[2];
-            if (limit_param.find_first_not_of("0123456789") != std::string::npos)
-            {
-                client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Wrong character in limit");
-                break ;
-            }
+                limit_param = params[2 + argcount];
+                argcount++;
+                if (limit_param.find_first_not_of("0123456789") != std::string::npos)
+                {
+                    client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Wrong character in limit");
+                    break ;
+                }
 
-            limit = std::atoi(limit_param.c_str());
-            if (limit < 1)
-            {
-                client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Limit must be greater than 0");
-                break ;
-            }
-            this->_has_user_limit = true;
-            this->_user_limit = limit;
-            message = "+l " + limit_param;
-            break;
-        default:
-            client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown character");
-            break;
+                limit = std::atoi(limit_param.c_str());
+                if (limit < 1)
+                {
+                    client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Limit must be greater than 0");
+                    break ;
+                }
+                this->_has_user_limit = true;
+                this->_user_limit = limit;
+                message = "+l " + limit_param;
+                break;
+            default:
+                client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown character");
+                break;
+        }
     }
 
     if (message.empty())
@@ -222,58 +231,61 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
     this->mode(client, message);
 }
 
-void     Channel::unset_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name)
+void     Channel::unset_mode(std::string mode, std::vector<std::string> params, Client *client, std::string channel_name)
 {
     std::string message = "";
     Client      *target;
     std::string target_name;
     std::string limit_param;
 
-    switch (mode) {
-        case 't':
-            _topic_restriction = false;
-            message = "-t";
-            break;
-        case 'i':
-            _invite_only = false;
-            message = "-i";
-            break;
-        case 'o':
-            if (params.size() < 3)
-            {
-                client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
-                break ;
-            }
+    for (int i = 0; i < (int)mode.length(); i++)
+    {
+        switch (mode.c_str()[i]) {
+            case 't':
+                _topic_restriction = false;
+                message = "-t";
+                break;
+            case 'i':
+                _invite_only = false;
+                message = "-i";
+                break;
+            case 'o':
+                if (params.size() < 3)
+                {
+                    client->reply(ERR_NEEDMOREPARAMS, channel_name + " " + ":Not enough parameters");
+                    break ;
+                }
 
-            target_name = params[2];
-            target = get_client(target_name, _clients);
-            if (!this->has_client(target))
-            {
-                client->reply(ERR_USERNOTINCHANNEL, channel_name + " " + ":User is not on this channel");
-                break ;
-            }
-            if (!this->is_chanop(target_name))
-            {
-                client->reply(ERR_CHANOPRIVSNEEDED, channel_name + " " + ":User is not channel operator");
-                break ;
-            }
+                target_name = params[2];
+                target = get_client(target_name, _clients);
+                if (!this->has_client(target))
+                {
+                    client->reply(ERR_USERNOTINCHANNEL, channel_name + " " + ":User is not on this channel");
+                    break ;
+                }
+                if (!this->is_chanop(target_name))
+                {
+                    client->reply(ERR_CHANOPRIVSNEEDED, channel_name + " " + ":User is not channel operator");
+                    break ;
+                }
 
-            this->remove_chanop(target);
-            message = "-o " + target_name;
-            break;
-        case 'k':
-            _key = "";
-            _has_key = false;
-            message = "-k";
-            break;
-        case 'l':
-            this->_has_user_limit = false;
-            this->_user_limit = 0;
-            message = "-l";
-            break;
-        default:
-            client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown character");
-            break;
+                this->remove_chanop(target);
+                message = "-o " + target_name;
+                break;
+            case 'k':
+                _key = "";
+                _has_key = false;
+                message = "-k";
+                break;
+            case 'l':
+                this->_has_user_limit = false;
+                this->_user_limit = 0;
+                message = "-l";
+                break;
+            default:
+                client->reply(ERR_UNKNOWNMODE, channel_name + " " + ":Unknown character");
+                break;
+        }
     }
 
     if (message.empty())

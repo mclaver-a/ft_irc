@@ -47,6 +47,7 @@ Server::Server(std::string port, std::string password)
     _commands["TOPIC"] = new Topic(this);
     _commands["PART"] = new Part(this);
     _commands["PRIVMSG"] = new Privmsg(this);
+    _commands["NOTICE"] = new Notice(this);
 }
 
 Server::Server(const Server &other)

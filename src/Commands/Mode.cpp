@@ -1,4 +1,5 @@
 #include "Commands.hpp"
+#include <algorithm>
 
 Mode::Mode(Server *server) : Command("MODE", server) { }
 
@@ -44,20 +45,32 @@ void Mode::invoke(Client *client, Message *message)
             return ;
         }
 
-        std::string mode_flag = message->get_params()[1];
-        if (mode_flag.length() != 2) {
+        std::string arg = message->get_params()[1];
+        if (arg.length() < 2) {
             client->reply(ERR_UNKNOWNMODE, channel->get_name() + " " + ":Unknown mode char");
             return ;
         }
 
         // Separate flag into two chars
-        char mode = mode_flag[0];
-        char flag = mode_flag[1];
+        char sign = arg[0];
+        arg = arg.substr(1, arg.length());
+        if (!arg.find_first_not_of("tiokl"))
+            client->reply(ERR_UNKNOWNMODE, channel->get_name() + " " + ":Unknown mode char");
 
-        if (mode == '-')
-            channel->unset_mode(flag, message->get_params(), client, channel->get_name());
-        else if (mode == '+')
-            channel->set_mode(flag, message->get_params(), client, channel->get_name());
+        int c = 0;
+
+        for (int i = 0; i < int(arg.length()) && sign == '+'; i++)
+            if (arg[i] == 'l' || arg[i] == 'o' || arg[i] == 'k')
+                c++;
+        if (2 + c > int(message->get_params().size()))
+        {
+            client->reply(ERR_NEEDMOREPARAMS, ":Not enough parameters for MODE command");
+            return ;
+        }
+        if (sign == '-')
+            channel->unset_mode(arg, message->get_params(), client, channel->get_name());
+        else if (sign == '+')
+            channel->set_mode(arg, message->get_params(), client, channel->get_name());
         else
             client->reply(ERR_UNKNOWNMODE, channel->get_name() + " " + ":Unknown mode char");
     }

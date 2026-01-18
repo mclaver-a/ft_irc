@@ -18,7 +18,7 @@ VPATH		= $(SRC_DIR) \
 			$(SRC_DIR)Commands/opps \
 			$(SRC_DIR)Channel
 
-SRC			= main.cpp Server.cpp Utils.cpp Client.cpp Message.cpp \
+SRC			= main.cpp Server.cpp Utils.cpp Client.cpp Message.cpp Notice.cpp \
 			User.cpp Pass.cpp Commands.cpp Cap.cpp Nick.cpp Channel.cpp \
 			Join.cpp Oper.cpp Who.cpp Mode.cpp List.cpp Unoper.cpp \
 			Quit.cpp Invite.cpp Kick.cpp Topic.cpp Part.cpp Privmsg.cpp

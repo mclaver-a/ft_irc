@@ -23,7 +23,7 @@ void    Nick::invoke(Client *client, Message *message) {
 
     if (_server->get_client(nickname))
     {
-        client->reply(ERR_NICKNAMEINUSE, "Your chosen nickname is already in use!");
+        client->reply(ERR_NICKNAMEINUSE, nickname);
         return;
     }
 

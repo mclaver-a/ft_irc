@@ -49,8 +49,8 @@ class Channel {
         // Channel management
         void                    invite(Client *client);
         void                    leave(Client *client);
-        void                    set_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name);
-        void                    unset_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name);
+        void                    set_mode(std::string mode, std::vector<std::string> params, Client *client, std::string channel_name);
+        void                    unset_mode(std::string mode, std::vector<std::string> params, Client *client, std::string channel_name);
 
         // Getters & Setters
         std::string             get_name(void) const;
