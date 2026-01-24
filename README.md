@@ -22,10 +22,18 @@ Other Makefile commands provided:
   - Make re: execute Make fclean + Make all.
 
 To run the daemon, execute the binary as follows:
-  - "./ircserv <server_port> <server_password>".
+
+  `./ircserv <server_port> <server_password>`
 
 To connect to the server via nc:
-  - "./nc -C 127.0.0.1 <server_port>". The -C flag is necessary to ensure proper message parsing, "man nc" for more info.
+  `./nc -C 127.0.0.1 <server_port>` 
+The -C flag is necessary to ensure proper message parsing, `man nc` for more info.
+
+To connect to the server via HexChat:
+  - Add the localhost IP and port (127.0.0.1/<chosen_port>) to your network list.
+  - Make sure to tick the "Accept invalid SSL certificates" box.
+  - Set login method as /PASS from the dropdown list.
+  - Fill in the remaining fields accordingly.
 
 ## **Functionality**
 
