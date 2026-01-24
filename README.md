@@ -22,12 +22,10 @@ Other Makefile commands provided:
   - Make re: execute Make fclean + Make all.
 
 To run the daemon, execute the binary as follows:
-
-"./ircserv <server_port> <server_password>".
+  - "./ircserv <server_port> <server_password>".
 
 To connect to the server via nc:
-
-"./nc -C 127.0.0.1 <server_port>". The -C flag is necessary to ensure proper message parsing, "man nc" for more info.
+  - "./nc -C 127.0.0.1 <server_port>". The -C flag is necessary to ensure proper message parsing, "man nc" for more info.
 
 ## **Functionality**
 
