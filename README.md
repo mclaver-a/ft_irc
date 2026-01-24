@@ -95,7 +95,7 @@ AI has only been employed to better understand certain quirks of the IRC standar
 
 ### **References**
 
-The following sources were consulted when designing our IRC server:
+Following are some of the sources consulted when designing our IRC server:
   - https://www.mirc.com/help/html/index.html?basic_irc_commands.html
   - https://datatracker.ietf.org/doc/html/rfc1459#section-6
   - https://modern.ircdocs.horse/#numerics
