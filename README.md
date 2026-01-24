@@ -44,6 +44,7 @@ Our reference client for this project is HexChat, a FOSS IRC client with built-i
   Although our server is capable of holding connections with any other client (namely nc), expect best functionality when using HexChat. 
   Note-worthy HexChat behaviour: 
 </p>
+
   - Commands must be preceded by a "/" character. Any string input without such character will be interpreted as a chat message instead (calling /PRIVMSG automatically).
   - File transfer is automatically handled Client to Client. (This is technically Bonus behaviour)
   - Automatically authenticates through PASS, NICK and USER, although the input variables must be specified through HexChat's GUI.
