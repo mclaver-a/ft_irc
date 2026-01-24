@@ -1,8 +1,9 @@
-#42'S FT_IRC
+# 42'S FT_IRC
 
 _This project has been created as part of the 42 curriculum by dmarijan & mclaver-._
 
-##**Description**
+## **Description**
+
 <p align="justify">
 Ft_Irc aims to teach us on the basic standard protocol of the "Internet Relay Chat", by creating a Server daemon written in c++98.
 The program will allow us to touch on sockets, connections, and non-blocking operations.
@@ -10,7 +11,7 @@ It's an interesting project to understand where modern chat-based communication 
 Our code is completely subject compliant. (No forks, only one poll() call, multiple client handling...)
 </p>
 
-##**Instructions**
+## **Instructions**
 
 To compile this project, simply clone it onto your machine, navigate into the folder and run make.
   Other Makefile commands provided:
@@ -23,7 +24,8 @@ To run the daemon, execute the binary as follows:
 To connect to the server via nc:
   "./nc -C 127.0.0.1 <server_port>". The -C flag is necessary to ensure proper message parsing, "man nc" for more info.
 
-##**Functionality**
+## **Functionality**
+
 <p align="justify">
 Our reference client for this project is **HexChat**, a FOSS IRC client with built-in GUI.
   Although our server is capable of holding connections with any other client (namely nc), expect best functionality when using HexChat. 
@@ -35,7 +37,7 @@ Our reference client for this project is **HexChat**, a FOSS IRC client with bui
   - Automatically reconnects to the server, as well as periodically sends /WHO requests.
   - Username must be comprised of valid characters (alpha-numeric, underscore, dash and dot only), Realname must be printable characters only.
 
-###**Command List**
+### **Command List**
 
 Following is a list of implemented commands. All commands are case-insensitive.
   - CAP: lists the server's special features (none in our case).
@@ -61,22 +63,24 @@ Following is a list of implemented commands. All commands are case-insensitive.
   - UNOPER <nick_name>: attempts to remove OP from specified user, requires OP.
   - WHO <channel_name>: server replies with the info of each client currently present in the specified channel.
 
-###**Technical Choices**
+### **Technical Choices**
 
 We think the following functionalities are important to keep in mind when tackling this project:
   - Half-messages, interrupted by Ctrl+D while using nc, are saved in a buffer and are correctly patched back together as long as only **no other** Ctrl-D signal is sent consecutively. Using more than one EOF signal in a row will result in the socket being one-sidedly closed, as per how interactive shells work. The server daemon has no way to detect this and such, will **not close** the connection to the client until the nc process is killed entirely (via Ctrl-C or similar).
   - A suspended nc process (Ctrl+Z) will not get disconnected from the server. To revive a suspended process, simply execute "fg".
   
-##**Resources**
-<p align="justify">
+## **Resources**
 
 ###**AI Usage**
+
+<p align="justify">
 No AI generated code has been used during the development of this project. 
 AI has only been employed to better understand certain quirks of the IRC standard.
+</p>
 
-###**References**
+### **References**
+
 The following sources were consulted when designing our IRC server:
   - https://www.mirc.com/help/html/index.html?basic_irc_commands.html
   - https://datatracker.ietf.org/doc/html/rfc1459#section-6
   - https://modern.ircdocs.horse/#numerics
-</p>
