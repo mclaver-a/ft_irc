@@ -14,7 +14,7 @@ Our code is completely subject compliant (no forks, only one poll() call, multip
 ## **Instructions**
 
 To compile this project, simply clone it onto your machine, navigate into the folder and run make.
-  Other Makefile commands provided:
+Other Makefile commands provided:
   - Make (all): compile the program into the ./ircserv binary, as well as create the Obj/ folder.
   - Make clean: delete the Obj/ folder, as well as it's contents.
   - Make fclean: same as clean, plus remove ./ircserv binary.
