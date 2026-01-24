@@ -71,7 +71,7 @@ We think the following functionalities are important to keep in mind when tackli
   
 ## **Resources**
 
-###**AI Usage**
+### **AI Usage**
 
 <p align="justify">
 No AI generated code has been used during the development of this project. 
