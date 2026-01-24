@@ -81,7 +81,7 @@ Following is a list of implemented commands. All commands are case-insensitive.
 ### **Technical Choices**
 
 We think the following functionalities are important to keep in mind when tackling this project:
-  - Half-messages, interrupted by Ctrl+D while using nc, are saved in a buffer and are correctly patched back together as long as only **no other** Ctrl-D signal is sent consecutively. Using more than one EOF signal in a row will result in the socket being one-sidedly closed, as per how interactive shells work. The server daemon has no way to detect this and such, will **not close** the connection to the client until the nc process is killed entirely (via Ctrl-C or similar).
+  - Half-messages, interrupted by Ctrl+D while using nc, are saved in a buffer and are correctly patched back together as long as **no other** Ctrl-D signal is sent consecutively. Using more than one EOF signal in a row will result in the socket being one-sidedly closed, as per how interactive shells work. The server daemon has no way to detect this and such, will **not close** the connection to the client until the nc process is killed entirely (via Ctrl-C or similar).
   - A suspended nc process (Ctrl+Z) will not get disconnected from the server. To revive a suspended process, simply execute "fg".
   
 ## **Resources**
