@@ -26,7 +26,9 @@ To run the daemon, execute the binary as follows:
   `./ircserv <server_port> <server_password>`
 
 To connect to the server via nc:
+
   `./nc -C 127.0.0.1 <server_port>` 
+  
 The -C flag is necessary to ensure proper message parsing, `man nc` for more info.
 
 To connect to the server via HexChat:
@@ -38,7 +40,7 @@ To connect to the server via HexChat:
 ## **Functionality**
 
 <p align="justify">
-Our reference client for this project is **HexChat**, a FOSS IRC client with built-in GUI.
+Our reference client for this project is HexChat, a FOSS IRC client with built-in GUI.
   Although our server is capable of holding connections with any other client (namely nc), expect best functionality when using HexChat. 
   Note-worthy HexChat behaviour: 
 </p>
