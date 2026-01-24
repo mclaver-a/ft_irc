@@ -9,11 +9,11 @@ It's an interesting project to understand where modern chat-based communication 
 </p>
 
 **Instructions**
-<p align="justify">
+
 To compile this project, simply clone it onto your machine, navigate into the folder and run make.
   Other Makefile commands provided:
   - Make (all): compile the program into the ./ircserv binary, as well as create the Obj/ folder.
   - Make clean: delete the Obj/ folder, as well as it's contents.
   - Make fclean: same as clean, plus remove ./ircserv binary.
   - Make re: execute Make fclean + Make all.
-</p>
+
